@@ -26,16 +26,6 @@ import { UploadCloud } from 'lucide-react';
 
 const MOCK_SERVICE_FEE = 150; // Example service fee in SAR
 
-// Add country codes data
-const COUNTRY_CODES = [
-    { name: 'Saudi Arabia', code: '+966', flag: '🇸🇦' },
-    { name: 'United Arab Emirates', code: '+971', flag: '🇦🇪' },
-    { name: 'Kuwait', code: '+965', flag: '🇰🇼' },
-    { name: 'Bahrain', code: '+973', flag: '🇧🇭' },
-    { name: 'Qatar', code: '+974', flag: '🇶🇦' },
-    { name: 'Oman', code: '+968', flag: '🇴🇲' }
-];
-
 const RequestFormPage = ({ navigateTo }) => {
     const { t, language } = useLanguage();
     const [currentStep, setCurrentStep] = useState('details');
@@ -119,7 +109,6 @@ const RequestFormPage = ({ navigateTo }) => {
             return;
         }
 
-        const fullPhoneNumber = formData.countryCode + formData.localPhoneNumber;
         const requiredFields = ['fullName', 'countryCode', 'localPhoneNumber', 'email', 'city', 'region', 'phoneModel', 'previouslyRepaired', 'deviceCondition', 'issueDescription', 'deviceImage', 'paymentMethod'];
         for (const field of requiredFields) {
             if (!formData[field]) {

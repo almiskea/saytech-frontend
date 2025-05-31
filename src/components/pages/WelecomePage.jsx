@@ -7,7 +7,6 @@ import api from '../../services/api';
 import { cn } from '../../utils/helpers';
 import { Tag, ListFilter, FileText, Truck, Wrench, Send, Users, SmartphoneNfc, X, CheckCircle, Star, MessageSquare } from 'lucide-react';
 import LoadingIndicator from '../common/LoadingIndicator';
-import Message from '../common/Message';
 
 // --- Page Components ---
 const WelcomePage = ({ navigateTo }) => {
