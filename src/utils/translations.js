@@ -169,7 +169,10 @@ const translations = {
         
         // Status Check Page
         checkRequestStatusTitle: "Check Request Status",
-        checkRequestStatusSubtitle: "Enter your details to view the current status of your recovery.",
+        checkRequestStatusSubtitle: "Enter your order ID to view the current status of your recovery.",
+        orderIdLabel: "Order ID",
+        orderIdPlaceholder: "Enter your transaction/order ID",
+        errorOrderIdRequired: "Please enter your order ID",
         useRequestIdButton: "Use Request ID",
         usePhoneNumberButton: "Use Phone Number",
         requestIdInputLabel: "Request ID",
@@ -450,7 +453,10 @@ const translations = {
 
         // Status Check Page
         checkRequestStatusTitle: "التحقق من حالة الطلب",
-        checkRequestStatusSubtitle: "أدخل تفاصيلك لعرض الحالة الحالية لاستعادتك.",
+        checkRequestStatusSubtitle: "أدخل معرف طلبك لعرض الحالة الحالية لاستعادة بياناتك.",
+        orderIdLabel: "معرف الطلب",
+        orderIdPlaceholder: "أدخل معرف المعاملة/الطلب",
+        errorOrderIdRequired: "يرجى إدخال معرف الطلب",
         useRequestIdButton: "استخدام معرف الطلب",
         usePhoneNumberButton: "استخدام رقم الهاتف",
         requestIdInputLabel: "معرف الطلب",
