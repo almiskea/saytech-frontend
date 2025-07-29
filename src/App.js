@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useCallback, createContext, useContext, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-   Phone, Mail, MessageCircle, Store, Globe, Loader2, X, ChevronLeft, ChevronRight, Search,
+   Phone, Mail, MessageCircle, Store, Globe, Loader2, X,
    Lock, CheckCircle, KeyRound, CreditCard, UploadCloud, FileCheck2, Tag, ListFilter, 
    FileText, Truck, Wrench, Send, Users, SmartphoneNfc, Star, Check, ChevronUp, ChevronDown,
    AlertCircle, ShieldCheck, MessageSquare, User, AtSign, ExternalLink
 } from 'lucide-react';
 import api from './services/api';
+import { Auth0Provider, useAuth0 } from './context/Auth0Provider';
+import AdminDashboardPage from './components/pages/AdminDashboardPage';
 // --- Utility Functions ---
 const cn = (...inputs) => inputs.filter(Boolean).join(' ');
 
@@ -247,6 +249,10 @@ const translations = {
 
         // General
         loadingMessage: "Loading...",
+        loadingAuth: "Checking authentication...",
+        authenticationRequired: "Authentication Required",
+        pleaseLoginToAccessAdmin: "Please log in to access the admin dashboard.",
+        goToHomePage: "Go to Home Page",
         requiredFieldIndicator: "*",
     },
     ar: {
@@ -484,6 +490,10 @@ const translations = {
 
         // General
         loadingMessage: "جاري التحميل...",
+        loadingAuth: "جاري التحقق من الهوية...",
+        authenticationRequired: "مطلوب تسجيل الدخول",
+        pleaseLoginToAccessAdmin: "يرجى تسجيل الدخول للوصول إلى لوحة التحكم.",
+        goToHomePage: "العودة للصفحة الرئيسية",
         requiredFieldIndicator: "*",
     }
 };
@@ -513,12 +523,31 @@ export const useLanguage = () => useContext(LanguageContext);
 
 
 // --- Navbar Component ---
-const Navbar = ({ navigateTo, adminToken, onLogout }) => {
+const Navbar = ({ navigateTo }) => {
     const { t, language, toggleLanguage } = useLanguage();
+    const { isAuthenticated, loginWithRedirect, logout, user, isLoading } = useAuth0();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const handleNavigate = (page) => {
         navigateTo(page);
         setIsMobileMenuOpen(false);
+    };
+    
+    const handleAdminAction = () => {
+        console.log('Admin action clicked, Auth0 state:', { isAuthenticated, isLoading });
+        if (isAuthenticated) {
+            // If authenticated with Auth0, go to admin dashboard
+            console.log('User authenticated, navigating to adminDashboard');
+            navigateTo('adminDashboard');
+        } else {
+            // If not authenticated, trigger Auth0 login
+            console.log('User not authenticated, triggering Auth0 login');
+            loginWithRedirect();
+        }
+    };
+    
+    const handleLogout = () => {
+        // Logout from Auth0
+        logout();
     };
     return (
         <nav className="bg-gray-900 text-white shadow-lg sticky top-0 z-40">
@@ -533,14 +562,30 @@ const Navbar = ({ navigateTo, adminToken, onLogout }) => {
                         <button onClick={() => navigateTo('welcome')} className="hover:text-blue-300 transition-colors px-2 py-1">{t('navHome')}</button>
                         <button onClick={() => navigateTo('request')} className="hover:text-blue-300 transition-colors px-2 py-1">{t('navNewRequest')}</button>
                         <button onClick={() => navigateTo('status')} className="hover:text-blue-300 transition-colors px-2 py-1">{t('navCheckStatus')}</button>
-                        {adminToken ? (
-                            <>
-                                <button onClick={() => navigateTo('adminDashboard')} className="hover:text-blue-300 transition-colors px-2 py-1">{t('navAdminDashboard')}</button>
-                                <Button onClick={onLogout} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-md text-sm">{t('navLogout')}</Button>
-                            </>
-                        ) : (
-                            <Button onClick={() => navigateTo('adminLogin')} className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-md text-sm">{t('navAdminLogin')}</Button>
+                        
+                        {/* Admin Section with Auth0 Integration */}
+                        {!isLoading && (
+                            isAuthenticated ? (
+                                <div className="flex items-center space-x-2">
+                                    <span className="text-sm text-gray-300">
+                                        <User className="h-4 w-4 inline mr-1" />
+                                        {user?.name || user?.email}
+                                    </span>
+                                    <Button onClick={handleAdminAction} className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-md text-sm">
+                                        {t('navAdminDashboard')}
+                                    </Button>
+                                    <Button onClick={handleLogout} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-md text-sm">
+                                        {t('navLogout')}
+                                    </Button>
+                                </div>
+                            ) : (
+                                <Button onClick={handleAdminAction} className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-md text-sm">
+                                    <Lock className="h-4 w-4 mr-1" />
+                                    {t('navAdminLogin')}
+                                </Button>
+                            )
                         )}
+                        
                         <Button onClick={toggleLanguage} className="text-gray-300 border border-gray-600 hover:bg-gray-700 hover:text-white px-3 py-1.5 rounded-md text-sm flex items-center">
                             <Globe className={cn("h-4 w-4", language === 'ar' ? 'ml-1.5' : 'mr-1.5')} /> {t('languageSwitch')}
                         </Button>
@@ -560,13 +605,28 @@ const Navbar = ({ navigateTo, adminToken, onLogout }) => {
                             <button onClick={() => handleNavigate('welcome')} className="text-gray-300 hover:text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium w-full text-left">{t('navHome')}</button>
                             <button onClick={() => handleNavigate('request')} className="text-gray-300 hover:text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium w-full text-left">{t('navNewRequest')}</button>
                             <button onClick={() => handleNavigate('status')} className="text-gray-300 hover:text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium w-full text-left">{t('navCheckStatus')}</button>
-                            {adminToken ? (
-                                <>
-                                    <button onClick={() => handleNavigate('adminDashboard')} className="text-gray-300 hover:text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium w-full text-left">{t('navAdminDashboard')}</button>
-                                    <button onClick={() => { onLogout(); setIsMobileMenuOpen(false); }} className="text-red-400 hover:text-white hover:bg-red-700 block px-3 py-2 rounded-md text-base font-medium w-full text-left">{t('navLogout')}</button>
-                                </>
-                            ) : (
-                                <button onClick={() => handleNavigate('adminLogin')} className="text-blue-400 hover:text-white hover:bg-blue-700 block px-3 py-2 rounded-md text-base font-medium w-full text-left">{t('navAdminLogin')}</button>
+                            
+                            {/* Admin Section with Auth0 Integration */}
+                            {!isLoading && (
+                                isAuthenticated ? (
+                                    <>
+                                        <div className="text-gray-300 px-3 py-2 text-sm">
+                                            <User className="h-4 w-4 inline mr-1" />
+                                            {user?.name || user?.email}
+                                        </div>
+                                        <button onClick={() => { handleAdminAction(); setIsMobileMenuOpen(false); }} className="text-blue-400 hover:text-white hover:bg-blue-700 block px-3 py-2 rounded-md text-base font-medium w-full text-left">
+                                            {t('navAdminDashboard')}
+                                        </button>
+                                        <button onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }} className="text-red-400 hover:text-white hover:bg-red-700 block px-3 py-2 rounded-md text-base font-medium w-full text-left">
+                                            {t('navLogout')}
+                                        </button>
+                                    </>
+                                ) : (
+                                    <button onClick={() => { handleAdminAction(); setIsMobileMenuOpen(false); }} className="text-blue-400 hover:text-white hover:bg-blue-700 block px-3 py-2 rounded-md text-base font-medium w-full text-left">
+                                        <Lock className="h-4 w-4 inline mr-1" />
+                                        {t('navAdminLogin')}
+                                    </button>
+                                )
                             )}
                         </div>
                     </motion.div>
@@ -579,42 +639,90 @@ const Navbar = ({ navigateTo, adminToken, onLogout }) => {
 // --- Main App Component ---
 function AppInternal() {
     const { t, language } = useLanguage(); // FIXED: Added 't' here
+    const { getAccessToken, isAuthenticated, isLoading } = useAuth0(); // Add Auth0 hook with loading state
     const [currentPage, setCurrentPage] = useState('welcome');
-    const [adminToken, setAdminToken] = useState(null);
+
+    // Set up Auth0 token getter for API service
+    useEffect(() => {
+        api.getAuth0Token = getAccessToken;
+    }, [getAccessToken]);
 
     const navigateTo = useCallback((page) => {
         const validPage = (page || 'welcome').trim();
+        console.log('navigateTo called with:', page, 'resolved to:', validPage, 'current page:', currentPage);
         setCurrentPage(validPage);
         // Update URL without reloading page for better UX
         window.history.pushState({}, '', `/${validPage}`);
         window.scrollTo(0, 0);
-    }, []); 
+    }, [currentPage]);
+
+    // Handle Auth0 authentication flow
+    useEffect(() => {
+        console.log('Auth0 state changed:', { isAuthenticated, currentPage, isLoading });
+        
+        // If user is authenticated and on welcome page, but they were trying to access admin
+        // (this can happen after Auth0 redirect), navigate to admin dashboard
+        if (isAuthenticated && currentPage === 'welcome' && !isLoading) {
+            // Check if we came from Auth0 redirect by looking for previous admin intent
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('code') && urlParams.has('state')) {
+                // User just authenticated via Auth0, redirect to admin dashboard
+                console.log('Redirecting to admin dashboard after Auth0 callback');
+                navigateTo('adminDashboard');
+                return;
+            }
+        }
+        
+        // If user is authenticated and trying to access admin dashboard, ensure they stay there
+        if (isAuthenticated && currentPage === 'adminDashboard') {
+            // User is properly authenticated, no need to redirect
+            console.log('User authenticated and on admin dashboard - staying here');
+            return;
+        }
+        
+        // If user is not authenticated and trying to access admin dashboard, 
+        // they should see the authentication error message (handled in renderPage)
+    }, [isAuthenticated, currentPage, isLoading, navigateTo]); 
 
     useEffect(() => {
         const handlePopState = () => {
             const path = window.location.pathname.substring(1) || 'welcome';
+            console.log('handlePopState triggered, path:', path);
             setCurrentPage(path);
         };
         window.addEventListener('popstate', handlePopState);
         
-        // Set initial page based on URL
-        handlePopState();
+        // Set initial page based on URL only on mount
+        console.log('Setting initial page based on URL');
+        const initialPath = window.location.pathname.substring(1) || 'welcome';
+        console.log('Initial path from URL:', initialPath);
+        setCurrentPage(initialPath);
 
         return () => window.removeEventListener('popstate', handlePopState);
-    }, []);
-
-    const handleAdminLogin = (token) => setAdminToken(token);
-    const handleAdminLogout = () => {
-        setAdminToken(null);
-        navigateTo('welcome');
-    };
+    }, []); // Remove currentPage dependency to avoid infinite loops
 
     const renderPage = () => {
+        console.log('renderPage called with currentPage:', currentPage, 'isAuthenticated:', isAuthenticated, 'isLoading:', isLoading);
         switch (currentPage) {
             case 'request': return <RequestFormPage navigateTo={navigateTo} />;
             case 'status': return <StatusCheckPage navigateTo={navigateTo} />;
-            case 'adminLogin': return <AdminLoginPage onLoginSuccess={handleAdminLogin} navigateTo={navigateTo} />;
-            case 'adminDashboard': return adminToken ? <AdminDashboardPage adminToken={adminToken} navigateTo={navigateTo} /> : <AdminLoginPage onLoginSuccess={handleAdminLogin} navigateTo={navigateTo} />;
+            case 'adminLogin': 
+                // Redirect to welcome since we now use Auth0 for authentication
+                return <WelcomePage navigateTo={navigateTo} />;
+            case 'adminDashboard': 
+                // Handle Auth0 loading state and authentication for admin dashboard
+                if (isLoading) {
+                    return <LoadingIndicator message={t('loadingAuth')} />;
+                }
+                
+                return isAuthenticated ? 
+                    <AdminDashboardPage navigateTo={navigateTo} /> : 
+                    <div className="text-center">
+                        <Message type="error" title={t('authenticationRequired')} message={t('pleaseLoginToAccessAdmin')} />
+                        <Button onClick={() => navigateTo('welcome')} className="mt-4">
+                            {t('goToHomePage')}
+                        </Button>
+                    </div>;
             case 'payment-callback': return <PaymentCallbackPage />;
             case 'welcome': default: return <WelcomePage navigateTo={navigateTo} />;
         }
@@ -622,7 +730,7 @@ function AppInternal() {
 
     return (
         <div className="min-h-screen bg-gray-100 text-gray-800">
-            <Navbar navigateTo={navigateTo} adminToken={adminToken} onLogout={handleAdminLogout} />
+            <Navbar navigateTo={navigateTo} />
             <main className="container mx-auto p-4 sm:p-6 md:p-8 mt-8">
                 <AnimatePresence mode="wait">
                     <motion.div
@@ -656,9 +764,11 @@ function AppInternal() {
 
 export default function App() {
     return (
-        <LanguageProvider>
-            <AppInternal />
-        </LanguageProvider>
+        <Auth0Provider>
+            <LanguageProvider>
+                <AppInternal />
+            </LanguageProvider>
+        </Auth0Provider>
     );
 }
 
@@ -933,253 +1043,6 @@ const RequestFormPage = ({ navigateTo }) => {
                 </CardContent>
             </Card>
             <AnimatePresence>{isAgreementModalOpen && <AgreementModal isOpen={isAgreementModalOpen} onClose={() => setIsAgreementModalOpen(false)} />}</AnimatePresence>
-        </motion.div>
-    );
-};
-
-const AdminLoginPage = ({ onLoginSuccess, navigateTo }) => {
-    const { t, language } = useLanguage();
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await api.loginAdmin(username, password);
-            if (response.success) {
-                onLoginSuccess(response.token);
-                navigateTo('adminDashboard');
-            } else {
-                setError(response.message || t('loginFailedText'));
-            }
-        } catch (err) {
-            setError(err.message || t('errorGenericTitle'));
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="max-w-md mx-auto mt-10"
-        >
-            <Card className="shadow-xl">
-                <CardHeader className="text-center">
-                    <CardTitle className="text-3xl">{t('adminLoginTitle')}</CardTitle>
-                    <Store className="w-12 h-12 text-blue-600 mx-auto mt-2" />
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div>
-                            <Label htmlFor="username">{t('usernameLabel')}</Label>
-                            <Input id="username" value={username} onChange={(e) => setUsername(e.target.value)} placeholder={t('usernamePlaceholder')} className="mt-1" autoFocus />
-                        </div>
-                        <div>
-                            <Label htmlFor="password">{t('passwordLabel')}</Label>
-                            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder={t('passwordPlaceholder')} className="mt-1" />
-                        </div>
-                        {error && <Message type="error" message={error} />}
-                        <Button type="submit" className="w-full text-lg py-3" disabled={loading} size="lg">
-                            {loading ? <><Loader2 className={cn("h-5 w-5 animate-spin", language==='ar' ? 'ml-2' : 'mr-2')} /> {t('loggingInButton')}</> : <><Lock className={cn("h-5 w-5", language==='ar' ? 'ml-2' : 'mr-2')} /> {t('loginButton')}</>}
-                        </Button>
-                    </form>
-                </CardContent>
-            </Card>
-        </motion.div>
-    );
-};
-
-const AdminDashboardPage = ({ adminToken, navigateTo }) => {
-    const { t, language } = useLanguage();
-    const [requests, setRequests] = useState([]);
-    const [loading, setLoading] = useState(true); 
-    const [tableLoading, setTableLoading] = useState(false); 
-    const [error, setError] = useState(null);
-    const [selectedRequest, setSelectedRequest] = useState(null);
-    const [newStatus, setNewStatus] = useState('');
-    const [updatingStatus, setUpdatingStatus] = useState(false);
-    const [updateMessage, setUpdateMessage] = useState(null);
-    
-    const [currentPage, setCurrentPage] = useState(0);
-    const [totalPages, setTotalPages] = useState(0);
-    const ITEMS_PER_PAGE = 10;
-    
-    const [searchTerm, setSearchTerm] = useState('');
-    const [searchInput, setSearchInput] = useState('');
-    const [statusFilter, setStatusFilter] = useState('all'); 
-
-    const fetchRequests = useCallback(async (pageToFetch = 0, currentSearchTerm = searchTerm, currentStatusFilter = statusFilter) => {
-        if (pageToFetch === 0 && requests.length === 0 && !error && !currentSearchTerm && currentStatusFilter === 'all') {
-            setLoading(true);
-        } else {
-            setTableLoading(true);
-        }
-        setError(null);
-
-        try {
-            const response = await api.getRequests(pageToFetch, ITEMS_PER_PAGE, currentSearchTerm, currentStatusFilter);
-            setRequests(response.requests || []);
-            setTotalPages(response.totalPages || 0);
-            setCurrentPage(response.currentPage !== undefined ? response.currentPage : pageToFetch);
-        } catch (err) {
-            setError(err.message || t('failedToFetchRequests'));
-            setRequests([]); 
-            setTotalPages(0);
-            setCurrentPage(0);
-        } finally {
-            setLoading(false);
-            setTableLoading(false);
-        }
-    }, [t, ITEMS_PER_PAGE, requests.length, error, searchTerm, statusFilter]);
-
-    useEffect(() => {
-        if (!adminToken) {
-            navigateTo('adminLogin');
-        } else {
-            fetchRequests(0, searchTerm, statusFilter);
-        }
-    }, [adminToken, navigateTo, searchTerm, statusFilter, fetchRequests]);
-
-    const handleSearch = (e) => {
-        e.preventDefault();
-        setSearchTerm(searchInput); 
-        setCurrentPage(0); 
-    };
-
-    const handleClearSearch = () => {
-        setSearchInput('');
-        setSearchTerm('');
-        setCurrentPage(0);
-    };
-
-    const handleFilterChange = (newFilter) => {
-        setStatusFilter(newFilter);
-        setCurrentPage(0); 
-    };
-
-    const handlePageChange = (newPage) => {
-        if (newPage >= 0 && newPage < totalPages && newPage !== currentPage) {
-            fetchRequests(newPage, searchTerm, statusFilter);
-        }
-    };
-    
-    const stats = {
-        total: requests.length,
-        pending: requests.filter(r => r.status === 'pending').length,
-        inProgress: requests.filter(r => ['paid', 'shipped', 'delivered', 'evaluating_device'].includes(r.status)).length,
-        completed: requests.filter(r => ['data_recovered', 'data_cant_recover'].includes(r.status)).length,
-        successRate: requests.length > 0 ? 
-            Math.round((requests.filter(r => r.status === 'data_recovered').length / 
-            requests.filter(r => ['data_recovered', 'data_cant_recover'].includes(r.status)).length) * 100) || 0 : 0
-    };
-    
-    const renderPagination = () => {
-        if (totalPages <= 1) return null;
-        return (
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4 px-6 py-4 border-t bg-gray-50">
-                <div className="text-sm text-gray-700">
-                    Showing {currentPage * ITEMS_PER_PAGE + 1} to {Math.min((currentPage + 1) * ITEMS_PER_PAGE, requests.length)} of {totalPages * ITEMS_PER_PAGE} results
-                </div>
-                <div className="flex items-center space-x-2">
-                    <Button variant="outline" size="sm" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 0 || tableLoading} className="flex items-center">
-                        <ChevronLeft className={cn("h-4 w-4", language === 'ar' ? 'ml-1' : 'mr-1')} /> <span className="hidden sm:inline">{t('previousPage')}</span>
-                    </Button>
-                    <div className="flex items-center gap-1">
-                        {[...Array(Math.min(5, totalPages))].map((_, idx) => {
-                            let pageNum = idx;
-                            if (totalPages > 5) {
-                                if (currentPage < 3) pageNum = idx;
-                                else if (currentPage > totalPages - 4) pageNum = totalPages - 5 + idx;
-                                else pageNum = currentPage - 2 + idx;
-                            }
-                            if (pageNum >= 0 && pageNum < totalPages) {
-                                return <Button key={pageNum} variant={pageNum === currentPage ? "default" : "outline"} size="sm" onClick={() => handlePageChange(pageNum)} disabled={tableLoading} className="w-10 h-10">{pageNum + 1}</Button>;
-                            }
-                            return null;
-                        })}
-                    </div>
-                    <Button variant="outline" size="sm" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage >= totalPages - 1 || tableLoading} className="flex items-center">
-                        <span className="hidden sm:inline">{t('nextPage')}</span> <ChevronRight className={cn("h-4 w-4", language === 'ar' ? 'mr-1' : 'ml-1')} />
-                    </Button>
-                </div>
-            </div>
-        );
-    };
-
-    const handleUpdateRequestStatus = async (requestId) => {
-        if (!newStatus || !selectedRequest || (selectedRequest.transactionId || selectedRequest.requestId) !== requestId) return;
-        setUpdatingStatus(true); setUpdateMessage(null);
-        try {
-            const result = await api.updateStatus(requestId, newStatus);
-             if (result.success) {
-                setUpdateMessage({type: 'success', text: t('statusUpdateSuccessText', {requestId, newStatus: t(formatStatusKey(newStatus)) || newStatus })});
-                fetchRequests(currentPage, searchTerm, statusFilter); 
-                setSelectedRequest(prev => prev ? {...prev, status: newStatus} : null);
-            } else {
-                setUpdateMessage({type: 'error', text: result.message || t('statusUpdateFailedText')});
-            }
-        } catch (err) {
-            setUpdateMessage({type: 'error', text: err.message || t('statusUpdateErrorText')});
-        } finally { setUpdatingStatus(false); }
-    };
-    
-    const statusOptions = [
-        { value: 'pending', labelKey: 'statusOptionPending' }, { value: 'paid', labelKey: 'statusOptionPaid' },
-        { value: 'evaluating_device', labelKey: 'statusOptionEvaluatingDevice'}, { value: 'shipped', labelKey: 'statusOptionShipped' },
-        { value: 'delivered', labelKey: 'statusOptionDelivered' }, { value: 'data_recovered', labelKey: 'statusOptionDataRecovered' },
-        { value: 'data_cant_recover', labelKey: 'statusOptionDataCantRecover' },
-    ];
-
-    const formatStatusKey = (statusValue) => `statusOption${(statusValue||'').split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('')}`;
-    const getStatusColor = (status) => {
-        switch ((status||'').toLowerCase()) {
-            case 'data_recovered': return 'bg-green-100 text-green-800 border-green-200';
-            case 'data_cant_recover': return 'bg-red-100 text-red-800 border-red-200';
-            case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-            case 'paid': return 'bg-blue-100 text-blue-800 border-blue-200';
-            case 'shipped': return 'bg-indigo-100 text-indigo-800 border-indigo-200';
-            case 'delivered': return 'bg-purple-100 text-purple-800 border-purple-200';
-            case 'evaluating_device': return 'bg-orange-100 text-orange-800 border-orange-200';
-            default: return 'bg-gray-100 text-gray-800 border-gray-200';
-        }
-    };
-
-    if (loading) return <LoadingIndicator message={t('loadingAdminDashboard')} />; 
-    if (error && requests.length === 0 && !searchTerm && statusFilter === 'all') return (
-        <div className="space-y-6">
-             <div className="flex justify-between items-center mb-6"><h2 className="text-3xl font-bold text-gray-900">{t('adminDashboardTitle')}</h2><Button onClick={() => fetchRequests(0, searchTerm, statusFilter)} variant="outline" size="sm" disabled={tableLoading || loading}><Loader2 className={cn("h-4 w-4", (tableLoading || loading) ? 'animate-spin':'', language === 'ar' ? 'ml-2' : 'mr-2')} /> {t('refreshRequestsButton')}</Button></div>
-            <Message type="error" title={t('errorLoadingDashboardTitle')} message={error} />
-        </div>
-    );
-
-    return (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div><h2 className="text-3xl font-bold text-gray-900">{t('adminDashboardTitle')}</h2><p className="text-gray-600 mt-1">Manage and track all data recovery requests</p></div>
-                <Button onClick={() => fetchRequests(currentPage, searchTerm, statusFilter)} variant="outline" size="default" disabled={tableLoading} className="flex-shrink-0"><Loader2 className={cn("h-4 w-4", tableLoading ? 'animate-spin':'', language === 'ar' ? 'ml-2' : 'mr-2')} /> {t('refreshRequestsButton')}</Button>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card className="border-l-4 border-blue-500"><CardContent className="p-6"><div className="flex items-center justify-between"><div><p className="text-sm font-medium text-gray-600">Total Requests</p><p className="text-2xl font-bold text-gray-900">{stats.total}</p></div><div className="p-3 bg-blue-100 rounded-full"><FileText className="h-6 w-6 text-blue-600" /></div></div></CardContent></Card>
-                <Card className="border-l-4 border-yellow-500"><CardContent className="p-6"><div className="flex items-center justify-between"><div><p className="text-sm font-medium text-gray-600">Pending</p><p className="text-2xl font-bold text-gray-900">{stats.pending}</p></div><div className="p-3 bg-yellow-100 rounded-full"><AlertCircle className="h-6 w-6 text-yellow-600" /></div></div></CardContent></Card>
-                <Card className="border-l-4 border-indigo-500"><CardContent className="p-6"><div className="flex items-center justify-between"><div><p className="text-sm font-medium text-gray-600">In Progress</p><p className="text-2xl font-bold text-gray-900">{stats.inProgress}</p></div><div className="p-3 bg-indigo-100 rounded-full"><Loader2 className="h-6 w-6 text-indigo-600" /></div></div></CardContent></Card>
-                <Card className="border-l-4 border-green-500"><CardContent className="p-6"><div className="flex items-center justify-between"><div><p className="text-sm font-medium text-gray-600">Success Rate</p><p className="text-2xl font-bold text-gray-900">{stats.successRate}%</p></div><div className="p-3 bg-green-100 rounded-full"><CheckCircle className="h-6 w-6 text-green-600" /></div></div></CardContent></Card>
-            </div>
-            <Card className="shadow-sm"><CardContent className="p-6"><div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
-                <div className="w-full lg:w-auto"><Label className="text-sm font-medium text-gray-700 mb-2 block">{t('filterByStatus')}</Label><div className="inline-flex rounded-lg shadow-sm" role="group">{['all', 'inProgress', 'done'].map(filter => (<button key={filter} onClick={() => handleFilterChange(filter)} className={cn("px-4 py-2 text-sm font-medium transition-colors", filter === 'all' ? 'rounded-l-lg' : '', filter === 'done' ? 'rounded-r-lg' : '', filter !== 'all' && filter !== 'done' ? 'border-l border-r' : '', statusFilter === filter ? 'bg-blue-600 text-white border-blue-600 z-10' : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50')}>{t(`filter${filter.charAt(0).toUpperCase() + filter.slice(1)}`)}</button>))}</div></div>
-                <form onSubmit={handleSearch} className="flex-grow flex items-end gap-2 w-full lg:w-auto lg:max-w-md"><div className="relative flex-grow"><Label htmlFor="adminSearchInput" className="sr-only">{t('searchPlaceholder')}</Label><div className="relative"><Search className={cn("absolute h-5 w-5 text-gray-400 top-1/2 -translate-y-1/2", language === 'ar' ? "right-3" : "left-3")} /><Input id="adminSearchInput" type="text" value={searchInput} onChange={(e) => setSearchInput(e.target.value)} placeholder={t('searchPlaceholder')} className={cn("h-10", language === 'ar' ? "pr-10 pl-3" : "pl-10 pr-3")}/></div></div><Button type="submit" variant="default" size="default" disabled={tableLoading} className="h-10 px-6">{t('searchButton')}</Button>{searchTerm && (<Button type="button" variant="outline" size="default" onClick={handleClearSearch} disabled={tableLoading} className="h-10"><X className="h-4 w-4" /></Button>)}</form>
-            </div></CardContent></Card>
-            {error && <Message type="error" title={t('errorLoadingDashboardTitle')} message={error} />}
-            {updateMessage && <Message type={updateMessage.type} message={updateMessage.text} />}
-            <Card className="shadow-sm overflow-hidden"><div className="overflow-x-auto"><table className="min-w-full divide-y divide-gray-200"><thead className="bg-gray-50"><tr>
-                <th className={cn("px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider", language === 'ar' ? 'text-right' : 'text-left')}>{t('tableHeaderRequestId')}</th><th className={cn("px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider", language === 'ar' ? 'text-right' : 'text-left')}>{t('tableHeaderCustomer')}</th><th className={cn("px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider hidden md:table-cell", language === 'ar' ? 'text-right' : 'text-left')}>{t('tableHeaderPhoneModel')}</th><th className={cn("px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider", language === 'ar' ? 'text-right' : 'text-left')}>{t('tableHeaderStatus')}</th><th className={cn("px-6 py-4 text-xs font-semibold text-gray-600 uppercase tracking-wider", language === 'ar' ? 'text-right' : 'text-left')}>{t('tableHeaderActions')}</th>
-            </tr></thead><tbody className="bg-white divide-y divide-gray-200">{tableLoading ? (<tr><td colSpan="5" className="px-6 py-12 text-center"><div className="flex flex-col items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-blue-600 mb-4" /><span className="text-gray-600">{t('loadingRequests')}</span></div></td></tr>) : requests.length > 0 ? (requests.map((req) => (<tr key={req.transactionId || req.requestId} className="hover:bg-gray-50 transition-colors"><td className={cn("px-6 py-4 whitespace-nowrap", language === 'ar' ? 'text-right' : 'text-left')}><div className="text-sm font-medium text-gray-900">{req.transactionId || req.requestId || 'N/A'}</div><div className="text-sm text-gray-500 md:hidden">{req.phoneModel || req.phoneInfo}</div></td><td className={cn("px-6 py-4 whitespace-nowrap", language === 'ar' ? 'text-right' : 'text-left')}><div className="text-sm font-medium text-gray-900">{req.customerName || 'N/A'}</div><div className="text-sm text-gray-500">{req.phoneNumber}</div></td><td className={cn("px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell", language === 'ar' ? 'text-right' : 'text-left')}>{req.phoneModel || req.phoneInfo}</td><td className={cn("px-6 py-4 whitespace-nowrap", language === 'ar' ? 'text-right' : 'text-left')}><span className={cn("px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border", getStatusColor(req.status))}>{t(formatStatusKey(req.status)) || req.status}</span></td><td className={cn("px-6 py-4 whitespace-nowrap text-sm font-medium", language === 'ar' ? 'text-left' : 'text-right')}><Button variant="ghost" size="sm" onClick={() => { setSelectedRequest(req); setNewStatus(req.status); setUpdateMessage(null); }} className="text-blue-600 hover:text-blue-900 hover:bg-blue-50">{t('viewEditButton')}</Button></td></tr>))) : (<tr><td colSpan="5" className="px-6 py-12 text-center"><div className="text-gray-500"><FileText className="h-12 w-12 mx-auto mb-4 text-gray-300" /><p className="text-lg font-medium">{t('noRequestsFound')}</p><p className="text-sm mt-2">Try adjusting your search or filters</p></div></td></tr>)}</tbody></table></div>{renderPagination()}</Card>
-            <AnimatePresence>{selectedRequest && (<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50" onClick={() => setSelectedRequest(null)}><motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="w-full max-w-2xl" onClick={e => e.stopPropagation()}><Card className="bg-white shadow-2xl rounded-lg overflow-hidden"><CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6"><div className="flex justify-between items-start"><div><CardTitle className="text-2xl">{t('requestDetailsTitle', {requestId: selectedRequest.transactionId || selectedRequest.requestId})}</CardTitle><p className="text-blue-100 mt-1">{t('customerLabel')} {selectedRequest.customerName}</p></div><Button variant="ghost" size="icon" onClick={() => setSelectedRequest(null)} className="text-white hover:bg-white/20"><X className="h-5 w-5"/></Button></div></CardHeader><CardContent className="p-6 space-y-6"><div className="grid grid-cols-1 md:grid-cols-2 gap-6"><div className="space-y-4"><div><p className="text-sm font-medium text-gray-500">{t('emailLabelModal')}</p><p className="mt-1 text-sm text-gray-900">{selectedRequest.email}</p></div><div><p className="text-sm font-medium text-gray-500">{t('phoneModelLabelModal')}</p><p className="mt-1 text-sm text-gray-900">{selectedRequest.phoneModel || selectedRequest.phoneInfo}</p></div><div><p className="text-sm font-medium text-gray-500">{t('paymentInfoLabelModal')}</p><p className="mt-1 text-sm text-gray-900">{selectedRequest.paymentInfo} {selectedRequest.transactionId && selectedRequest.transactionId !== 'N/A' && (<span className="text-gray-500"> (ID: {selectedRequest.transactionId})</span>)}</p></div></div><div className="space-y-4"><div><p className="text-sm font-medium text-gray-500">{t('issueLabelModal')}</p><p className="mt-1 text-sm text-gray-900">{selectedRequest.issueDescription || selectedRequest.issue}</p></div><div><p className="text-sm font-medium text-gray-500">{t('currentStatusLabelModal')}</p><span className={cn("mt-1 px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full border", getStatusColor(selectedRequest.status))}>{t(formatStatusKey(selectedRequest.status)) || selectedRequest.status}</span></div></div></div><div className="pt-6 border-t"><Label htmlFor="newStatus" className="text-sm font-medium text-gray-700">{t('updateStatusLabelModal')}</Label><Select onValueChange={setNewStatus} value={newStatus}><SelectTrigger className="mt-2 w-full"><SelectValue placeholder={t('selectNewStatusPlaceholder')} /></SelectTrigger><SelectContent>{statusOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{t(opt.labelKey)}</SelectItem>)}</SelectContent></Select>{updateMessage && (<div className="mt-4"><Message type={updateMessage.type} message={updateMessage.text} /></div>)}</div></CardContent><CardFooter className="bg-gray-50 px-6 py-4"><div className="flex justify-end space-x-3 w-full"><Button variant="outline" onClick={() => setSelectedRequest(null)}>Cancel</Button><Button onClick={() => handleUpdateRequestStatus(selectedRequest.transactionId || selectedRequest.requestId)} disabled={updatingStatus || newStatus === selectedRequest.status} className="bg-blue-600 hover:bg-blue-700">{updatingStatus ? (<><Loader2 className={cn("h-4 w-4 animate-spin", language === 'ar' ? 'ml-2' : 'mr-2')} />{t('updatingButtonModal')}</>) : (t('saveStatusChangeButton'))}</Button></div></CardFooter></Card></motion.div></motion.div>)}</AnimatePresence>
         </motion.div>
     );
 };

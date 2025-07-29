@@ -17,7 +17,7 @@ import SelectItem from '../common/Select/SelectItem';
 import { Input } from '../common/ui-utils';
 
 
-const AdminDashboardPage = ({ adminToken, navigateTo }) => {
+const AdminDashboardPage = ({ navigateTo }) => {
     const { t, language } = useLanguage();
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true); 
@@ -62,13 +62,11 @@ const AdminDashboardPage = ({ adminToken, navigateTo }) => {
     }, [t, ITEMS_PER_PAGE, requests.length, error, searchTerm, statusFilter]); // Added missing dependencies for useCallback
 
     useEffect(() => {
-        if (!adminToken) {
-            navigateTo('adminLogin');
-        } else {
-            fetchRequests(0, searchTerm, statusFilter);
-        }
+        // Since we're using Auth0, we don't need to check adminToken anymore
+        // The parent component (App.js) already handles Auth0 authentication
+        fetchRequests(0, searchTerm, statusFilter);
     // eslint-disable-next-line react-hooks/exhaustive-deps 
-    }, [adminToken, navigateTo, searchTerm, statusFilter]); // fetchRequests is stable due to useCallback, but still good practice to list if it changes
+    }, [searchTerm, statusFilter]); // fetchRequests is stable due to useCallback, but still good practice to list if it changes
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -256,7 +254,7 @@ const AdminDashboardPage = ({ adminToken, navigateTo }) => {
                                 ) : requests.length > 0 ? (
                                     requests.map((req) => (
                                         <tr key={req.requestId} className="hover:bg-gray-50 transition-colors">
-                                            <td className={cn("px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900", language === 'ar' ? 'text-right' : 'text-left')}>{req.requestId}</td>
+                                            <td className={cn("px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900", language === 'ar' ? 'text-right' : 'text-left')}>{req.transactionId}</td>
                                             <td className={cn("px-6 py-4 whitespace-nowrap text-sm text-gray-500", language === 'ar' ? 'text-right' : 'text-left')}>
                                                 {req.customerName || 'N/A'} <br/> ({req.phoneNumber})
                                             </td>

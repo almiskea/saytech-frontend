@@ -18,6 +18,40 @@ const MOCK_BEFORE_AFTER_CASES = [
 ];
 
 const api = {
+    // Set the Auth0 token getter function (will be set by the app)
+    getAuth0Token: null,
+
+    // Helper to get authentication header
+    getAuthHeaders: async () => {
+        try {
+            if (!api.getAuth0Token) {
+                console.warn('Auth0 token getter not initialized, using basic headers');
+                return {
+                    'Content-Type': 'application/json'
+                };
+            }
+            
+            const token = await api.getAuth0Token();
+            if (!token) {
+                console.warn('No authentication token available, using basic headers');
+                return {
+                    'Content-Type': 'application/json'
+                };
+            }
+            
+            return {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            };
+        } catch (error) {
+            console.error('Error getting auth headers:', error);
+            // Fallback to basic headers instead of throwing
+            return {
+                'Content-Type': 'application/json'
+            };
+        }
+    },
+
     // Updated function to initiate payment and receive HTML for the popup
     initiatePayFortPayment: async ({ email, amount }) => {
         // The callback URL for the popup to redirect to after payment
@@ -115,47 +149,55 @@ const api = {
     },
 
     getRequests: async (page = 0, size = 10, searchTerm = '', statusFilter = 'all') => {
-    try {
-        // Build query parameters
-        const params = new URLSearchParams({
-            page: page.toString(),
-            size: size.toString(),
-            statusFilter: statusFilter
-        });
+        try {
+            // Get auth headers with token
+            const headers = await api.getAuthHeaders();
+            
+            // Build query parameters
+            const params = new URLSearchParams({
+                page: page.toString(),
+                size: size.toString(),
+                statusFilter: statusFilter
+            });
 
-        // Only add searchTerm if it's not empty
-        if (searchTerm && searchTerm.trim()) {
-            params.append('searchTerm', searchTerm.trim());
+            // Only add searchTerm if it's not empty
+            if (searchTerm && searchTerm.trim()) {
+                params.append('searchTerm', searchTerm.trim());
+            }
+
+            const response = await fetch(`${baseUrl}/api/requests?${params}`, {
+                method: 'GET',
+                headers: headers,
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ message: 'Failed to fetch requests' }));
+                
+                // Handle authentication errors specifically
+                if (response.status === 401) {
+                    throw new Error('Authentication required. Please login to view requests.');
+                }
+                
+                throw new Error(errorData.message || 'Failed to fetch requests');
+            }
+
+            const result = await response.json();
+            console.log("Requests fetched successfully:", result);
+            return result;
+        } catch (error) {
+            console.error('Get requests error:', error);
+            throw new Error(error.message || 'Failed to fetch requests');
         }
-
-        const response = await fetch(`${baseUrl}/api/requests?${params}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({ message: 'Failed to fetch requests' }));
-            throw new Error(errorData.message || 'Failed to fetch requests');
-        }
-
-        const result = await response.json();
-        console.log("Requests fetched successfully:", result);
-        return result;
-    } catch (error) {
-        console.error('Get requests error:', error);
-        throw new Error(error.message || 'Failed to fetch requests');
-    }
-},
+    },
 
     updateStatus: async (requestId, newStatus) => {
         try {
+            // Get auth headers with token
+            const headers = await api.getAuthHeaders();
+            
             const response = await fetch(`${baseUrl}/api/requests/${requestId}/status`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: headers,
                 body: JSON.stringify({
                     status: newStatus
                 }),
@@ -163,6 +205,12 @@ const api = {
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ message: 'Failed to update status' }));
+                
+                // Handle authentication errors specifically
+                if (response.status === 401) {
+                    throw new Error('Authentication required. Please login to update status.');
+                }
+                
                 throw new Error(errorData.message || 'Status update failed');
             }
 
