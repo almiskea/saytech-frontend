@@ -1,21 +1,18 @@
-import { useLanguage } from '../../App'; // Assuming App.js exports useLanguage
-import { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../common/ui-utils'; // Combined Card imports
-import { Button } from '../common/ui-utils';
-import { Loader2, X, ChevronLeft, ChevronRight, Search } from 'lucide-react'; // Combined lucide-react imports
+import { BarChart, Users, FileText, AlertCircle, CheckCircle, ChevronDown, ChevronUp, Filter, Search } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageProvider';
 import api from '../../services/api';
-import Message from '../common/Message';
-import { cn } from '../../utils/helpers';
+import { Button, Input, Card, CardHeader, CardTitle, CardContent, CardFooter, Label, CardDescription } from '../common/ui-utils';
+import { Select } from '../common/Select/Select';
+import { SelectContent } from '../common/Select/SelectContent';
+import { SelectItem } from '../common/Select/SelectItem';
+import { SelectTrigger } from '../common/Select/SelectTrigger';
+import { SelectValue } from '../common/Select/SelectValue';
 import LoadingIndicator from '../common/LoadingIndicator';
-import { Label } from '../common/ui-utils';
-import Select from '../common/Select/Select'; // Assuming Select is the default export from this path
-import SelectTrigger from '../common/Select/SelectTrigger';
-import SelectValue from '../common/Select/SelectValue';
-import SelectContent from '../common/Select/SelectContent';
-import SelectItem from '../common/Select/SelectItem';
-import { Input } from '../common/ui-utils';
-
+import Message from '../common/Message';
+import { Loader2, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { cn } from '../../utils/helpers';
 
 const AdminDashboardPage = ({ navigateTo }) => {
     const { t, language } = useLanguage();
@@ -121,7 +118,7 @@ const AdminDashboardPage = ({ navigateTo }) => {
     };
 
     const handleUpdateRequestStatus = async (requestId) => {
-        if (!newStatus || !selectedRequest || selectedRequest.requestId !== requestId) return;
+        if (!newStatus || !selectedRequest || selectedRequest.transactionId !== requestId) return;
         setUpdatingStatus(true); setUpdateMessage(null);
         try {
             const result = await api.updateStatus(requestId, newStatus);
@@ -331,7 +328,7 @@ const AdminDashboardPage = ({ navigateTo }) => {
                             </div>
                         </CardContent>
                         <CardFooter className="bg-gray-50">
-                            <Button onClick={() => handleUpdateRequestStatus(selectedRequest.requestId)} disabled={updatingStatus || newStatus === selectedRequest.status}>
+                            <Button onClick={() => handleUpdateRequestStatus(selectedRequest.transactionId)} disabled={updatingStatus || newStatus === selectedRequest.status}>
                                 {updatingStatus ? <><Loader2 className={cn("h-4 w-4 animate-spin", language === 'ar' ? 'ml-2' : 'mr-2')} />{t('updatingButtonModal')}</> : t('saveStatusChangeButton')}
                             </Button>
                         </CardFooter>

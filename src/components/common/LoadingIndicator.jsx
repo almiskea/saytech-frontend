@@ -1,5 +1,6 @@
-import { useLanguage } from '../../App';
+import React from 'react';
 import { Loader2 } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageProvider';
 import { cn } from '../../utils/helpers';
 
 // --- Helper Components ---

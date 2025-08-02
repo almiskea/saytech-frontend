@@ -1,7 +1,8 @@
-import { useLanguage } from '../../App';
-import { cn } from '../../utils/helpers';
-import { CheckCircle, AlertCircle } from 'lucide-react';
+import React from 'react';
 import { motion } from 'framer-motion';
+import { CheckCircle, AlertCircle } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageProvider';
+import { cn } from '../../utils/helpers';
 
 const Message = ({ type, title, message, children }) => {
     const { language } = useLanguage();

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLanguage } from '../../App';
+import { useLanguage } from '../../context/LanguageProvider';
 import { cn } from '../../utils/helpers';
 
  // --- UI Components ---
@@ -105,24 +105,25 @@ export const CardContent = React.forwardRef(({ className, ...props }, ref) => (
 
 export const CardFooter = React.forwardRef(({ className, ...props }, ref) => (
     <div ref={ref} className={cn("flex items-center p-6 pt-0", className)} {...props} />
-  ));
+));
 
 export const Alert = React.forwardRef(({ className, variant = 'default', children, ...props }, ref) => {
     const { language } = useLanguage();
-    const variantStyles = {
+    const variantClasses = {
         default: "bg-background text-foreground",
         destructive: "border-red-500/50 text-red-500 dark:border-red-500 [&>svg]:text-red-500",
         success: "border-green-500/50 text-green-600 dark:border-green-500 [&>svg]:text-green-600",
     };
+
+    const directionClasses = language === 'ar' 
+        ? "[&>svg~*]:pr-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:right-4 [&>svg]:top-4" 
+        : "[&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4";
+
     return (
         <div
             ref={ref}
             role="alert"
-            className={cn("relative w-full rounded-lg border p-4", 
-                language === 'ar' ? "[&>svg~*]:pr-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:right-4 [&>svg]:top-4" 
-                                  : "[&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4",
-                variantStyles[variant], 
-                className)}
+            className={cn("relative w-full rounded-lg border p-4", directionClasses, variantClasses[variant], className)}
             {...props}
         >
             {children}
@@ -130,16 +131,16 @@ export const Alert = React.forwardRef(({ className, variant = 'default', childre
     );
 });
 
-export const AlertDescription = React.forwardRef(({ className, children, ...props }, ref) => (
-    <div ref={ref} className={cn("text-sm [&_p]:leading-relaxed", className)} {...props}>
-        {children}
-    </div>
-));
-
 export const AlertTitle = React.forwardRef(({ className, children, ...props }, ref) => (
     <h5 ref={ref} className={cn("mb-1 font-medium leading-none tracking-tight", className)} {...props}>
         {children}
     </h5>
+));
+
+export const AlertDescription = React.forwardRef(({ className, children, ...props }, ref) => (
+    <div ref={ref} className={cn("text-sm [&_p]:leading-relaxed", className)} {...props}>
+        {children}
+    </div>
 ));
 
 

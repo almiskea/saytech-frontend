@@ -1,9 +1,10 @@
-import { useLanguage } from '../../App';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './ui-utils';
 import { FileCheck2, X, CheckCircle } from 'lucide-react';
-import { cn } from '../../utils/helpers';
+import { useLanguage } from '../../context/LanguageProvider';
 import { Button } from './ui-utils';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './ui-utils';
+import { cn } from '../../utils/helpers';
 
 // --- Agreement Modal Component ---
 const AgreementModal = ({ isOpen, onClose }) => {

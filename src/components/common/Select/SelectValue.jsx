@@ -1,10 +1,12 @@
-import { useContext } from 'react';
-import { SelectContext } from '../../../App';
+import React, { useContext } from 'react';
 import { cn } from '../../../utils/helpers';
+import { SelectContext } from './Select';
 
-const SelectValue = ({ placeholder }) => {
-    const { displayValue, selectedValue } = useContext(SelectContext);
-    return <span className={cn(!selectedValue && placeholder ? "text-gray-500" : "", "truncate")}>{displayValue || placeholder}</span>;
+export const SelectValue = ({ placeholder }) => { 
+    const { displayValue, selectedValue } = useContext(SelectContext); 
+    return (
+        <span className={cn(!selectedValue && placeholder ? "text-gray-500" : "", "truncate")}>
+            {displayValue || placeholder}
+        </span>
+    ); 
 };
-
-export default SelectValue;

@@ -1,11 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useLanguage, SelectContext } from '../../../App'
-import SelectContent from './SelectContent';
-import SelectItem from './SelectItem';
-import SelectTrigger from './SelectTrigger';
-import SelectValue from './SelectValue';
+import React, { useState, useEffect, useRef, createContext } from 'react';
+import { useLanguage } from '../../../context/LanguageProvider';
+import { SelectContent } from './SelectContent';
+import { SelectItem } from './SelectItem';
+import { SelectTrigger } from './SelectTrigger';
+import { SelectValue } from './SelectValue';
 
-const Select = ({ children, onValueChange, value: controlledValue }) => {
+export const SelectContext = createContext();
+
+export const Select = ({ children, onValueChange, value: controlledValue }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [selectedValue, setSelectedValue] = useState(controlledValue || '');
     const [displayValue, setDisplayValue] = useState('');
@@ -68,5 +70,3 @@ const Select = ({ children, onValueChange, value: controlledValue }) => {
         </SelectContext.Provider>
     );
 };
-
-export default Select;

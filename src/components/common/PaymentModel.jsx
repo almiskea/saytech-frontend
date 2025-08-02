@@ -1,12 +1,10 @@
-import { useLanguage } from '../../App';
-import { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './ui-utils';
-import { ShieldCheck, X, Loader2, CreditCard } from 'lucide-react';
+import { X, CreditCard, ShieldCheck, Loader2 } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageProvider';
+import { Button, Card, CardHeader, CardTitle, CardContent, CardFooter } from './ui-utils';
 import { cn } from '../../utils/helpers';
-import { Button, Label, Input } from './ui-utils';
-import Message from './Message';
-// --- Payment Modal Component ---
+
 const PaymentModal = ({ isOpen, onClose, amount, onSubmitPayment, paymentMethodType }) => {
     const { t, language } = useLanguage();
     const [cardDetails, setCardDetails] = useState({ cardNumber: '', expiryDate: '', cvv: '' });

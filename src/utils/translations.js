@@ -1,5 +1,4 @@
-// --- Localization ---
-const translations = {
+export const translations = {
     en: {
         // Navbar
         navHome: "Home",
@@ -568,6 +567,3 @@ const translations = {
         requiredFieldIndicator: "*",
     }
 };
-
-
-export default translations;
