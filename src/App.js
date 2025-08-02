@@ -9,6 +9,7 @@ import {
 import api from './services/api';
 import { Auth0Provider, useAuth0 } from './context/Auth0Provider';
 import AdminDashboardPage from './components/pages/AdminDashboardPage';
+import AboutUsPage from './components/pages/AboutUsPage';
 // --- Utility Functions ---
 const cn = (...inputs) => inputs.filter(Boolean).join(' ');
 
@@ -19,6 +20,7 @@ const translations = {
         navHome: "Home",
         navNewRequest: "New Request",
         navCheckStatus: "Check Status",
+        navAboutUs: "About Us",
         navAdminDashboard: "Dashboard",
         navAdminLogin: "Admin",
         navLogout: "Logout",
@@ -70,6 +72,46 @@ const translations = {
         processStep3Desc: "Our experienced technicians will meticulously work to recover your valuable data.",
         processStep4Title: "4. Data Returned",
         processStep4Desc: "Once recovered, we'll securely return your data and device to you.",
+
+        // About Us Page
+        aboutUsTitle: "About Say Tech",
+        aboutUsSubtitle: "Your trusted partner in data recovery, bringing precious memories and critical information back to life.",
+        
+        // Our Story Section
+        ourStoryTitle: "Our Story",
+        ourStoryParagraph1: "Founded in the heart of Saihat, Saudi Arabia, Say Tech emerged from a simple belief: that everyone deserves to have their precious data recovered when technology fails them.",
+        ourStoryParagraph2: "Our journey began when our founder, with 14 years of experience in aviation mechanics and electricity, witnessed firsthand how devastating data loss can be for individuals and businesses alike.",
+        ourStoryParagraph3: "Today, we stand as the region's trusted data recovery specialists, combining technical expertise with genuine care for our customers' digital lives.",
+        companyHighlights: "Company Highlights",
+        highlight1: "Founded in Saihat, Saudi Arabia",
+        highlight2: "14+ years of technical expertise",
+        highlight3: "Specializing in iPhone data recovery",
+        highlight4: "Serving customers across the Kingdom",
+        
+        // Our Values Section
+        ourValuesTitle: "Our Values",
+        value1Title: "Trust & Security",
+        value1Description: "Your data's security and privacy are our top priorities. We handle every device with the utmost care and confidentiality.",
+        value2Title: "Excellence",
+        value2Description: "We strive for perfection in every recovery attempt, using the latest techniques and maintaining the highest standards.",
+        value3Title: "Innovation",
+        value3Description: "We continuously invest in cutting-edge technology and training to stay ahead in the rapidly evolving field of data recovery.",
+        
+        // Our Mission Section
+        ourMissionTitle: "Our Mission",
+        missionStatement: "To provide reliable, professional, and compassionate data recovery services that reunite people with their digital memories and critical information.",
+        missionGoalsTitle: "What We Aim to Achieve:",
+        missionGoal1: "Deliver industry-leading data recovery success rates",
+        missionGoal2: "Provide transparent, honest communication throughout the process",
+        missionGoal3: "Offer affordable solutions without compromising on quality",
+        missionGoal4: "Build lasting relationships based on trust and reliability",
+        whyChooseUsTitle: "Why Choose Say Tech?",
+        successRate: "Success Rate",
+        supportAvailable: "Support Available",
+        yearsExperience: "Years Experience",
+        readyToRecover: "Ready to Recover Your Data?",
+        readyToRecoverSubtext: "Join hundreds of satisfied customers who trusted us with their precious data.",
+        startRecoveryButton: "Start Your Recovery",
 
         // Request Form Page
         requestServiceTitle: "Request Data Recovery Service",
@@ -260,6 +302,7 @@ const translations = {
         navHome: "الرئيسية",
         navNewRequest: "طلب جديد",
         navCheckStatus: "تحقق من الحالة",
+        navAboutUs: "من نحن",
         navAdminDashboard: "لوحة التحكم",
         navAdminLogin: "دخول المسؤول",
         navLogout: "تسجيل الخروج",
@@ -311,6 +354,46 @@ const translations = {
         processStep3Desc: "سيعمل فنيونا ذوو الخبرة بدقة لاستعادة بياناتك القيمة.",
         processStep4Title: "4. إعادة البيانات",
         processStep4Desc: "بمجرد استردادها، سنعيد بياناتك وجهازك إليك بأمان.",
+
+        // About Us Page
+        aboutUsTitle: "عن ساي تك",
+        aboutUsSubtitle: "شريكك الموثوق في استعادة البيانات، نعيد الذكريات الثمينة والمعلومات الحيوية إلى الحياة.",
+        
+        // Our Story Section
+        ourStoryTitle: "قصتنا",
+        ourStoryParagraph1: "تأسست في قلب سيهات، المملكة العربية السعودية، انطلقت ساي تك من إيمان بسيط: أن كل شخص يستحق أن تُستعاد بياناته الثمينة عندما تخذله التكنولوجيا.",
+        ourStoryParagraph2: "بدأت رحلتنا عندما شاهد مؤسسنا، بخبرته التي تمتد لـ 14 عامًا في ميكانيكا وكهرباء الطيران، كم يمكن أن يكون فقدان البيانات مدمرًا للأفراد والشركات على حد سواء.",
+        ourStoryParagraph3: "اليوم، نقف كمتخصصين موثوقين في استعادة البيانات في المنطقة، نجمع بين الخبرة التقنية والاهتمام الحقيقي بالحياة الرقمية لعملائنا.",
+        companyHighlights: "معالم الشركة",
+        highlight1: "تأسست في سيهات، المملكة العربية السعودية",
+        highlight2: "أكثر من 14 عامًا من الخبرة التقنية",
+        highlight3: "متخصصون في استعادة بيانات الآيفون",
+        highlight4: "نخدم العملاء في جميع أنحاء المملكة",
+        
+        // Our Values Section
+        ourValuesTitle: "قيمنا",
+        value1Title: "الثقة والأمان",
+        value1Description: "أمان وخصوصية بياناتك هما أولويتنا القصوى. نتعامل مع كل جهاز بأقصى درجات العناية والسرية.",
+        value2Title: "التميز",
+        value2Description: "نسعى للكمال في كل محاولة استرداد، مستخدمين أحدث التقنيات ومحافظين على أعلى المعايير.",
+        value3Title: "الابتكار",
+        value3Description: "نستثمر باستمرار في التكنولوجيا المتطورة والتدريب للبقاء في المقدمة في مجال استعادة البيانات سريع التطور.",
+        
+        // Our Mission Section
+        ourMissionTitle: "مهمتنا",
+        missionStatement: "تقديم خدمات استعادة البيانات الموثوقة والمهنية والمتعاطفة التي تعيد الناس إلى ذكرياتهم الرقمية ومعلوماتهم الحيوية.",
+        missionGoalsTitle: "ما نسعى لتحقيقه:",
+        missionGoal1: "تحقيق معدلات نجاح رائدة في استعادة البيانات",
+        missionGoal2: "توفير تواصل شفاف وصادق طوال العملية",
+        missionGoal3: "تقديم حلول ميسورة التكلفة دون التنازل عن الجودة",
+        missionGoal4: "بناء علاقات دائمة قائمة على الثقة والموثوقية",
+        whyChooseUsTitle: "لماذا تختار ساي تك؟",
+        successRate: "معدل النجاح",
+        supportAvailable: "الدعم متاح",
+        yearsExperience: "سنوات الخبرة",
+        readyToRecover: "مستعد لاستعادة بياناتك؟",
+        readyToRecoverSubtext: "انضم إلى المئات من العملاء الراضين الذين وثقوا بنا ببياناتهم الثمينة.",
+        startRecoveryButton: "ابدأ الاستعادة",
 
         // Request Form Page
         requestServiceTitle: "طلب خدمة استعادة البيانات",
@@ -560,6 +643,7 @@ const Navbar = ({ navigateTo }) => {
                     </div>
                     <div className="hidden md:flex items-center space-x-1 sm:space-x-2 lg:space-x-3">
                         <button onClick={() => navigateTo('welcome')} className="hover:text-blue-300 transition-colors px-2 py-1">{t('navHome')}</button>
+                        <button onClick={() => navigateTo('about')} className="hover:text-blue-300 transition-colors px-2 py-1">{t('navAboutUs')}</button>
                         <button onClick={() => navigateTo('request')} className="hover:text-blue-300 transition-colors px-2 py-1">{t('navNewRequest')}</button>
                         <button onClick={() => navigateTo('status')} className="hover:text-blue-300 transition-colors px-2 py-1">{t('navCheckStatus')}</button>
                         
@@ -603,6 +687,7 @@ const Navbar = ({ navigateTo }) => {
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="md:hidden overflow-hidden">
                         <div className="px-2 pt-2 pb-3 space-y-1 bg-gray-800">
                             <button onClick={() => handleNavigate('welcome')} className="text-gray-300 hover:text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium w-full text-left">{t('navHome')}</button>
+                            <button onClick={() => handleNavigate('about')} className="text-gray-300 hover:text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium w-full text-left">{t('navAboutUs')}</button>
                             <button onClick={() => handleNavigate('request')} className="text-gray-300 hover:text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium w-full text-left">{t('navNewRequest')}</button>
                             <button onClick={() => handleNavigate('status')} className="text-gray-300 hover:text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium w-full text-left">{t('navCheckStatus')}</button>
                             
@@ -706,6 +791,7 @@ function AppInternal() {
         switch (currentPage) {
             case 'request': return <RequestFormPage navigateTo={navigateTo} />;
             case 'status': return <StatusCheckPage navigateTo={navigateTo} />;
+            case 'about': return <AboutUsPage navigateTo={navigateTo} t={t} language={language} />;
             case 'adminLogin': 
                 // Redirect to welcome since we now use Auth0 for authentication
                 return <WelcomePage navigateTo={navigateTo} />;
