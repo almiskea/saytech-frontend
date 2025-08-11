@@ -165,6 +165,15 @@ export const translations = {
         paymentFailedText: "Could not process payment. Please check your details or try another card.",
         paymentFailedCardDeclined: "Your card was declined. Please try a different card or contact your bank.",
         closeButton: "Close",
+        paymentCancelledTitle: "Payment Cancelled",
+paymentCancelledText: "Payment was cancelled. Please try again.",
+paymentTimeoutTitle: "Payment Timeout",
+paymentTimeoutText: "Payment process took too long. Please try again.",
+paymentInProgressMessage: "Payment in progress. Please complete the payment in the popup window...",
+tryAgainButton: "Try Again",
+popupBlockedTitle: "Popup Blocked",
+popupBlockedText: "Please allow popups for this site to complete the payment process.",
+
         
         // Status Check Page
         checkRequestStatusTitle: "Check Request Status",
@@ -498,6 +507,14 @@ export const translations = {
         statusPending: "في انتظار الدفع. يرجى إكمال الدفع للمتابعة.",
         statusErrorInRequest: "خطأ في الطلب.",
         statusUnknown: "حالة غير معروفة",
+        paymentCancelledTitle: "تم إلغاء الدفع",
+paymentCancelledText: "تم إلغاء عملية الدفع. يرجى المحاولة مرة أخرى.",
+paymentTimeoutTitle: "انتهت مهلة الدفع",
+paymentTimeoutText: "استغرقت عملية الدفع وقتًا طويلاً. يرجى المحاولة مرة أخرى.",
+paymentInProgressMessage: "الدفع قيد التنفيذ. يرجى إكمال الدفع في النافذة المنبثقة...",
+tryAgainButton: "حاول مرة أخرى",
+popupBlockedTitle: "النافذة المنبثقة محظورة",
+popupBlockedText: "يرجى السماح بالنوافذ المنبثقة لهذا الموقع لإكمال عملية الدفع.",
 
         // Admin Login Page
         adminLoginTitle: "دخول المسؤول",
