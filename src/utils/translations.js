@@ -2,8 +2,10 @@ export const translations = {
     en: {
         // Navbar
         navHome: "Home",
+        navAboutUs: "About Us",
         navNewRequest: "New Request",
         navCheckStatus: "Check Status",
+        navContactUs: "Contact Us",
         navAdminDashboard: "Dashboard",
         navAdminLogin: "Admin",
         navLogout: "Logout",
@@ -55,6 +57,34 @@ export const translations = {
         processStep3Desc: "Our experienced technicians will meticulously work to recover your valuable data.",
         processStep4Title: "4. Data Returned",
         processStep4Desc: "Once recovered, we'll securely return your data and device to you.",
+
+        // Contact Us Page
+        contactUsTitle: "Contact Us",
+        contactUsSubtitle: "Have questions? We'd love to hear from you.",
+        contactFormTitle: "Send Us a Message",
+        nameLabel: "Name",
+        messageLabel: "Message",
+        sendMessageButton: "Send Message",
+        sendingMessage: "Sending...",
+        messageSentSuccess: "Your message has been sent successfully!",
+        messageSentError: "Failed to send message. Please try again.",
+        contactInfoTitle: "Contact Information",
+        contactAddress: "King Abdulaziz Road, Saihat, Saudi Arabia",
+
+        // About Us Page
+        aboutTitle: "About Say Tech",
+        aboutSubtitle: "Your partners in digital resurrection. We bring lost data back to life.",
+        aboutOurStoryTitle: "Our Story",
+        aboutOurStoryP1: "Founded from a passion for technology and a deep-seated desire to solve complex problems, Say Tech started with a simple mission: to recover what was thought to be lost. Our lead technician, with 14 years of experience in the high-stakes field of aviation electronics, brings a level of precision and discipline to data recovery that is second to none.",
+        aboutOurStoryP2: "We believe that every byte of data tells a story, holds a memory, or runs a business. Losing it can be devastating. That's why we've dedicated ourselves to mastering the intricate art of data recovery, combining cutting-edge technology with meticulous, hands-on expertise to reunite you with your digital life.",
+        aboutFeature1Title: "Precision Engineering",
+        aboutFeature1Desc: "Leveraging a background in aviation mechanics, we apply meticulous, systematic processes to every recovery task.",
+        aboutFeature2Title: "Customer-Centric",
+        aboutFeature2Desc: "We prioritize clear communication and transparency, keeping you informed every step of the way.",
+        aboutFeature3Title: "Cutting-Edge Technology",
+        aboutFeature3Desc: "We invest in the latest tools and techniques to tackle even the most challenging data recovery scenarios.",
+        aboutJoinUsTitle: "Join Our Story of Success",
+        aboutJoinUsDesc: "Trust us with your device, and let us make you our next success story. We're not just recovering data; we're restoring peace of mind.",
 
 
         // Request Form Page
@@ -166,13 +196,13 @@ export const translations = {
         paymentFailedCardDeclined: "Your card was declined. Please try a different card or contact your bank.",
         closeButton: "Close",
         paymentCancelledTitle: "Payment Cancelled",
-paymentCancelledText: "Payment was cancelled. Please try again.",
-paymentTimeoutTitle: "Payment Timeout",
-paymentTimeoutText: "Payment process took too long. Please try again.",
-paymentInProgressMessage: "Payment in progress. Please complete the payment in the popup window...",
-tryAgainButton: "Try Again",
-popupBlockedTitle: "Popup Blocked",
-popupBlockedText: "Please allow popups for this site to complete the payment process.",
+        paymentCancelledText: "Payment was cancelled. Please try again.",
+        paymentTimeoutTitle: "Payment Timeout",
+        paymentTimeoutText: "Payment process took too long. Please try again.",
+        paymentInProgressMessage: "Payment in progress. Please complete the payment in the popup window...",
+        tryAgainButton: "Try Again",
+        popupBlockedTitle: "Popup Blocked",
+        popupBlockedText: "Please allow popups for this site to complete the payment process.",
 
         
         // Status Check Page
@@ -296,8 +326,10 @@ popupBlockedText: "Please allow popups for this site to complete the payment pro
     ar: {
         // Navbar
         navHome: "الرئيسية",
+        navAboutUs: "من نحن",
         navNewRequest: "طلب جديد",
         navCheckStatus: "تحقق من الحالة",
+        navContactUs: "اتصل بنا",
         navAdminDashboard: "لوحة التحكم",
         navAdminLogin: "دخول المسؤول",
         navLogout: "تسجيل الخروج",
@@ -349,6 +381,35 @@ popupBlockedText: "Please allow popups for this site to complete the payment pro
         processStep3Desc: "سيعمل فنيونا ذوو الخبرة بدقة لاستعادة بياناتك القيمة.",
         processStep4Title: "4. إعادة البيانات",
         processStep4Desc: "بمجرد استردادها، سنعيد بياناتك وجهازك إليك بأمان.",
+
+        // Contact Us Page
+        contactUsTitle: "اتصل بنا",
+        contactUsSubtitle: "هل لديك أسئلة؟ نود أن نسمع منك.",
+        contactFormTitle: "أرسل لنا رسالة",
+        nameLabel: "الاسم",
+        messageLabel: "الرسالة",
+        sendMessageButton: "إرسال الرسالة",
+        sendingMessage: "جار الإرسال...",
+        messageSentSuccess: "تم إرسال رسالتك بنجاح!",
+        messageSentError: "فشل إرسال الرسالة. يرجى المحاولة مرة أخرى.",
+        contactInfoTitle: "معلومات الاتصال",
+        contactAddress: "طريق الملك عبد العزيز، سيهات، المملكة العربية السعودية",
+
+        // About Us Page
+        aboutTitle: "عن ساي تك",
+        aboutSubtitle: "شركاؤك في الإحياء الرقمي. نعيد البيانات المفقودة إلى الحياة.",
+        aboutOurStoryTitle: "قصتنا",
+        aboutOurStoryP1: "تأسست ساي تك من شغف بالتكنولوجيا ورغبة عميقة في حل المشاكل المعقدة، وبدأت بمهمة بسيطة: استعادة ما كان يُعتقد أنه مفقود. فنينا الرئيسي، بخبرة 14 عامًا في مجال إلكترونيات الطيران عالي الدقة، يجلب مستوى من الدقة والانضباط لاستعادة البيانات لا مثيل له.",
+        aboutOurStoryP2: "نحن نؤمن بأن كل بايت من البيانات يروي قصة، أو يحمل ذكرى، أو يدير عملاً. فقدانه يمكن أن يكون مدمراً. لهذا السبب، كرسنا أنفسنا لإتقان فن استعادة البيانات المعقد، والجمع بين التكنولوجيا المتطورة والخبرة العملية الدقيقة لإعادة توحيدك مع حياتك الرقمية.",
+        aboutFeature1Title: "هندسة دقيقة",
+        aboutFeature1Desc: "بالاعتماد على خلفية في ميكانيكا الطيران، نطبق عمليات دقيقة ومنهجية على كل مهمة استرداد.",
+        aboutFeature2Title: "التركيز على العميل",
+        aboutFeature2Desc: "نعطي الأولوية للتواصل الواضح والشفافية، ونبقيك على اطلاع في كل خطوة على الطريق.",
+        aboutFeature3Title: "تكنولوجيا متطورة",
+        aboutFeature3Desc: "نستثمر في أحدث الأدوات والتقنيات للتعامل مع أصعب سيناريوهات استعادة البيانات.",
+        aboutJoinUsTitle: "انضم إلى قصة نجاحنا",
+        aboutJoinUsDesc: "ثق بنا بجهازك، ودعنا نجعلك قصة نجاحنا التالية. نحن لا نستعيد البيانات فقط؛ نحن نعيد راحة البال.",
+
 
         // Request Form Page
         requestServiceTitle: "طلب خدمة استعادة البيانات",
@@ -508,13 +569,13 @@ popupBlockedText: "Please allow popups for this site to complete the payment pro
         statusErrorInRequest: "خطأ في الطلب.",
         statusUnknown: "حالة غير معروفة",
         paymentCancelledTitle: "تم إلغاء الدفع",
-paymentCancelledText: "تم إلغاء عملية الدفع. يرجى المحاولة مرة أخرى.",
-paymentTimeoutTitle: "انتهت مهلة الدفع",
-paymentTimeoutText: "استغرقت عملية الدفع وقتًا طويلاً. يرجى المحاولة مرة أخرى.",
-paymentInProgressMessage: "الدفع قيد التنفيذ. يرجى إكمال الدفع في النافذة المنبثقة...",
-tryAgainButton: "حاول مرة أخرى",
-popupBlockedTitle: "النافذة المنبثقة محظورة",
-popupBlockedText: "يرجى السماح بالنوافذ المنبثقة لهذا الموقع لإكمال عملية الدفع.",
+        paymentCancelledText: "تم إلغاء عملية الدفع. يرجى المحاولة مرة أخرى.",
+        paymentTimeoutTitle: "انتهت مهلة الدفع",
+        paymentTimeoutText: "استغرقت عملية الدفع وقتًا طويلاً. يرجى المحاولة مرة أخرى.",
+        paymentInProgressMessage: "الدفع قيد التنفيذ. يرجى إكمال الدفع في النافذة المنبثقة...",
+        tryAgainButton: "حاول مرة أخرى",
+        popupBlockedTitle: "النافذة المنبثقة محظورة",
+        popupBlockedText: "يرجى السماح بالنوافذ المنبثقة لهذا الموقع لإكمال عملية الدفع.",
 
         // Admin Login Page
         adminLoginTitle: "دخول المسؤول",

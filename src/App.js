@@ -7,12 +7,13 @@ import { Store, Globe, Loader2, X,
 import api from './services/api';
 import { Auth0Provider, useAuth0 } from './context/Auth0Provider';
 import AdminDashboardPage from './components/pages/AdminDashboardPage';
-import AboutUsPage from './components/pages/AboutUsPage';
 import { LanguageProvider, useLanguage } from './context/LanguageProvider';
 import RequestFormPage from './components/pages/RequestFormPage';
 import StatusCheckPage from './components/pages/StatusCheckPage';
 import WelcomePage from './components/pages/WelcomePage';
 import PaymentCallbackPage from './components/pages/PaymentCallbackPage';
+import ContactUsPage from './components/pages/ContactUsPage';
+import AboutUsPage from './components/pages/AboutUsPage';
 import { Button } from './components/common/ui-utils';
 
 // --- Utility Functions ---
@@ -59,6 +60,7 @@ const Navbar = ({ navigateTo }) => {
                         <button onClick={() => navigateTo('about')} className="hover:text-blue-300 transition-colors px-2 py-1">{t('navAboutUs')}</button>
                         <button onClick={() => navigateTo('request')} className="hover:text-blue-300 transition-colors px-2 py-1">{t('navNewRequest')}</button>
                         <button onClick={() => navigateTo('status')} className="hover:text-blue-300 transition-colors px-2 py-1">{t('navCheckStatus')}</button>
+                        <button onClick={() => navigateTo('contact')} className="hover:text-blue-300 transition-colors px-2 py-1">{t('navContactUs')}</button>
                         
                         {/* Admin Section with Auth0 Integration */}
                         {!isLoading && (
@@ -103,6 +105,7 @@ const Navbar = ({ navigateTo }) => {
                             <button onClick={() => handleNavigate('about')} className="text-gray-300 hover:text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium w-full text-left">{t('navAboutUs')}</button>
                             <button onClick={() => handleNavigate('request')} className="text-gray-300 hover:text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium w-full text-left">{t('navNewRequest')}</button>
                             <button onClick={() => handleNavigate('status')} className="text-gray-300 hover:text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium w-full text-left">{t('navCheckStatus')}</button>
+                            <button onClick={() => handleNavigate('contact')} className="text-gray-300 hover:text-white hover:bg-gray-700 block px-3 py-2 rounded-md text-base font-medium w-full text-left">{t('navContactUs')}</button>
                             
                             {/* Admin Section with Auth0 Integration */}
                             {!isLoading && (
@@ -204,7 +207,8 @@ function AppInternal() {
         switch (currentPage) {
             case 'request': return <RequestFormPage navigateTo={navigateTo} />;
             case 'status': return <StatusCheckPage navigateTo={navigateTo} />;
-            case 'about': return <AboutUsPage navigateTo={navigateTo} t={t} language={language} />;
+            case 'contact': return <ContactUsPage />;
+            case 'about': return <AboutUsPage />;
             case 'adminLogin': 
                 // Redirect to welcome since we now use Auth0 for authentication
                 return <WelcomePage navigateTo={navigateTo} />;
