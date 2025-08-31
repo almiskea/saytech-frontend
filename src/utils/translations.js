@@ -93,6 +93,19 @@ export const translations = {
         shippingPolicyReturn: "After successful data recovery, we will ship your recovered data within 48 business hours.",
         shippingPolicyOwnership: "As part of the service agreement, ownership of the original device is transferred to Say Tech upon completion of the process.",
 
+        // Refund Policy
+        refundPolicyTitle: "Refund Policy",
+        refundPolicyGeneral: "Refunds will be credited to the original mode of payment.",
+        refundPolicyCancellation: "A full refund is available if the cancellation is requested before the device has been shipped to our store, or within 10 days of payment if the device has not yet been shipped.",
+        refundPolicyPartial: "In cases where data recovery is not possible, a partial refund of 1200 SAR will be issued. A fee of 300 SAR is retained for the technical evaluation and processing.",
+
+        // Privacy Policy
+        privacyPolicyTitle: "Privacy Policy",
+        privacyPolicyIntro: "Your privacy is critically important to us. This policy outlines how we handle and protect your personal information and data.",
+        privacyPolicyDataHandling: "Data Handling: Once your data is recovered, it is immediately transferred to a secure, encrypted hard drive. This hard drive is then prepared for shipment back to you.",
+        privacyPolicyConfidentiality: "Confidentiality: Our recovery process is designed to be non-intrusive. Our technicians do not view the contents of your files. We maintain strict confidentiality and only access the data structure necessary to perform the recovery.",
+        privacyPolicySecurity: "Security: We implement a variety of security measures to maintain the safety of your personal information and recovered data throughout the entire process.",
+
 
         // Request Form Page
         requestServiceTitle: "Request Data Recovery Service",
@@ -423,6 +436,19 @@ export const translations = {
         shippingPolicyCosts: "تكاليف الشحن، سواء لإرسال الجهاز إلينا أو إعادته، هي مسؤولية العميل.",
         shippingPolicyReturn: "بعد نجاح استعادة البيانات، سنقوم بشحن بياناتك المستردة في غضون 48 ساعة عمل.",
         shippingPolicyOwnership: "كجزء من اتفاقية الخدمة، تنتقل ملكية الجهاز الأصلي إلى ساي تك عند اكتمال العملية.",
+
+        // Refund Policy
+        refundPolicyTitle: "سياسة استرداد الأموال",
+        refundPolicyGeneral: "سيتم إضافة المبالغ المستردة إلى طريقة الدفع الأصلية.",
+        refundPolicyCancellation: "استرداد كامل المبلغ متاح إذا تم طلب الإلغاء قبل شحن الجهاز إلى متجرنا، أو في غضون 10 أيام من الدفع إذا لم يتم شحن الجهاز بعد.",
+        refundPolicyPartial: "في الحالات التي يتعذر فيها استرداد البيانات، سيتم إصدار استرداد جزئي بقيمة 1200 ريال سعودي. يتم الاحتفاظ برسوم قدرها 300 ريال سعودي للتقييم الفني والمعالجة.",
+
+        // Privacy Policy
+        privacyPolicyTitle: "سياسة الخصوصية",
+        privacyPolicyIntro: "خصوصيتك تهمنا بشكل كبير. توضح هذه السياسة كيف نتعامل مع معلوماتك الشخصية وبياناتك ونحميها.",
+        privacyPolicyDataHandling: "التعامل مع البيانات: بمجرد استعادة بياناتك، يتم نقلها فورًا إلى قرص صلب آمن ومشفّر. ثم يتم تجهيز هذا القرص الصلب للشحن إليك.",
+        privacyPolicyConfidentiality: "السرية: تم تصميم عملية الاسترداد لدينا لتكون غير تدخلية. لا يطلع الفنيون لدينا على محتويات ملفاتك. نحافظ على سرية تامة ولا نصل إلا إلى بنية البيانات اللازمة لإجراء الاسترداد.",
+        privacyPolicySecurity: "الأمان: نطبق مجموعة متنوعة من الإجراءات الأمنية للحفاظ على سلامة معلوماتك الشخصية وبياناتك المستردة طوال العملية بأكملها.",
 
 
         // Request Form Page

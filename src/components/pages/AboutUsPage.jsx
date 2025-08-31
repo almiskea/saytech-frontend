@@ -81,6 +81,27 @@ const AboutUsPage = () => {
                     <li>{t('shippingPolicyOwnership')}</li>
                 </ul>
             </div>
+
+            <div className="bg-white p-8 rounded-lg shadow-lg mt-12">
+                <h2 className="text-3xl font-semibold text-gray-800 mb-6 text-center">{t('refundPolicyTitle')}</h2>
+                <ul className="list-disc list-inside text-gray-700 leading-relaxed space-y-4">
+                    <li>{t('refundPolicyGeneral')}</li>
+                    <li>{t('refundPolicyCancellation')}</li>
+                    <li>{t('refundPolicyPartial')}</li>
+                </ul>
+            </div>
+
+            <div className="bg-white p-8 rounded-lg shadow-lg mt-12">
+                <h2 className="text-3xl font-semibold text-gray-800 mb-6 text-center">{t('privacyPolicyTitle')}</h2>
+                <div className="text-gray-700 leading-relaxed space-y-4">
+                    <p>{t('privacyPolicyIntro')}</p>
+                    <ul className="list-disc list-inside pl-4 space-y-2">
+                        <li><strong>{t('privacyPolicyDataHandling').split(': ')[0]}:</strong> {t('privacyPolicyDataHandling').split(': ')[1]}</li>
+                        <li><strong>{t('privacyPolicyConfidentiality').split(': ')[0]}:</strong> {t('privacyPolicyConfidentiality').split(': ')[1]}</li>
+                        <li><strong>{t('privacyPolicySecurity').split(': ')[0]}:</strong> {t('privacyPolicySecurity').split(': ')[1]}</li>
+                    </ul>
+                </div>
+            </div>
         </motion.div>
     );
 };
