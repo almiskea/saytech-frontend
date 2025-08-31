@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { UploadCloud, CheckCircle, CreditCard, Loader2 } from 'lucide-react';
+import { CheckCircle, CreditCard, Loader2 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageProvider';
 import api from '../../services/api';
 import { Button, Input, Textarea, Label, Card, CardHeader, CardTitle, CardDescription, CardContent, Alert, AlertTitle, AlertDescription } from '../common/ui-utils';
@@ -33,7 +33,7 @@ const RequestFormPage = ({ navigateTo }) => {
     });
     const [isAgreementChecked, setIsAgreementChecked] = useState(false);
     const [isAgreementModalOpen, setIsAgreementModalOpen] = useState(false);
-    const [fileName, setFileName] = useState('');
+    // const [fileName, setFileName] = useState('');
     
     // Close payment window if component unmounts
     useEffect(() => {
@@ -336,7 +336,7 @@ const RequestFormPage = ({ navigateTo }) => {
         const { name, value, files } = e.target;
         if (name === "deviceImage") {
             setFormData(prev => ({ ...prev, [name]: files ? files[0] : null }));
-            setFileName(files && files[0] ? files[0].name : "");
+            // setFileName(files && files[0] ? files[0].name : "");
         } else {
             setFormData(prev => ({ ...prev, [name]: value }));
         }
@@ -453,10 +453,10 @@ const RequestFormPage = ({ navigateTo }) => {
                             <div><Label htmlFor="deviceCondition">{t('deviceConditionLabel')} {requiredStar}</Label><Select onValueChange={(v) => handleSelectChange('deviceCondition', v)} value={formData.deviceCondition}><SelectTrigger className="mt-1 w-full"><SelectValue placeholder={t('deviceConditionPlaceholder')} /></SelectTrigger><SelectContent>{deviceConditions.map(c => <SelectItem key={c.value} value={c.value}>{t(c.labelKey)}</SelectItem>)}</SelectContent></Select></div>
                         </div>
                         <div><Label htmlFor="issueDescription">{t('issueDescriptionLabel')} {requiredStar}</Label><Textarea id="issueDescription" name="issueDescription" value={formData.issueDescription} onChange={handleChange} placeholder={t('issueDescriptionPlaceholder')} required className="mt-1" rows={4} /></div>
-                        <div><Label htmlFor="deviceImage" className="flex items-center gap-2"><UploadCloud className="w-5 h-5 text-gray-500" />{t('deviceImageLabel')} {requiredStar}</Label><Input id="deviceImage" name="deviceImage" type="file" accept="image/*" onChange={handleChange} required className="mt-1 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>{fileName && <p className="text-xs text-gray-500 mt-1">{t('fileNameLabel')} {fileName}</p>}</div>
-                        <div className="pt-4 border-t mt-6">
+                        {/* <div><Label htmlFor="deviceImage" className="flex items-center gap-2"><UploadCloud className="w-5 h-5 text-gray-500" />{t('deviceImageLabel')} {requiredStar}</Label><Input id="deviceImage" name="deviceImage" type="file" accept="image/*" onChange={handleChange} required className="mt-1 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>{fileName && <p className="text-xs text-gray-500 mt-1">{t('fileNameLabel')} {fileName}</p>}</div> */}
+                        {/* <div className="pt-4 border-t mt-6">
                             <p className="text-sm text-gray-600">{t('paymentCreditCard')}</p>
-                        </div>
+                        </div> */}
                         <div className={cn("flex items-start mt-6 pt-6 border-t", language === 'ar' ? 'space-x-reverse space-x-2' : 'space-x-2')}>
                             <input type="checkbox" id="agreement" checked={isAgreementChecked} onChange={(e) => setIsAgreementChecked(e.target.checked)} className="h-5 w-5 text-blue-600 border-gray-300 rounded focus:ring-blue-500 flex-shrink-0" />
                             <Label htmlFor="agreement" className="text-sm text-gray-700">{t('agreementCheckboxLabel')}{' '}<button type="button" onClick={() => setIsAgreementModalOpen(true)} className="text-blue-600 hover:underline font-medium">{t('viewAgreementLink')}</button></Label>

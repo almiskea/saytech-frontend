@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BarChart, Users, FileText, AlertCircle, CheckCircle, ChevronDown, ChevronUp, Filter, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageProvider';
 import api from '../../services/api';
 import { Button, Input, Card, CardHeader, CardTitle, CardContent, CardFooter, Label, CardDescription } from '../common/ui-utils';

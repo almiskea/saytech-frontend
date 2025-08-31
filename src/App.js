@@ -1,10 +1,8 @@
-import React, { useState, useEffect, useCallback, createContext, useContext, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-   Phone, Mail, MessageCircle, Store, Globe, Loader2, X,
-   Lock, CheckCircle, KeyRound, CreditCard, UploadCloud, FileCheck2, Tag, ListFilter, 
-   FileText, Truck, Wrench, Send, Users, SmartphoneNfc, Star, Check, ChevronUp, ChevronDown,
-   AlertCircle, ShieldCheck, MessageSquare, User, AtSign, ExternalLink
+import { Store, Globe, Loader2, X,
+   Lock, CheckCircle, 
+   AlertCircle, User,
 } from 'lucide-react';
 import api from './services/api';
 import { Auth0Provider, useAuth0 } from './context/Auth0Provider';
@@ -15,8 +13,7 @@ import RequestFormPage from './components/pages/RequestFormPage';
 import StatusCheckPage from './components/pages/StatusCheckPage';
 import WelcomePage from './components/pages/WelcomePage';
 import PaymentCallbackPage from './components/pages/PaymentCallbackPage';
-import { Button, Input, Textarea, Label, Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter, Alert, AlertDescription, AlertTitle } from './components/common/ui-utils';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './components/common/Select/Select';
+import { Button } from './components/common/ui-utils';
 
 // --- Utility Functions ---
 const cn = (...inputs) => inputs.filter(Boolean).join(' ');
@@ -276,4 +273,3 @@ export default function App() {
 
 const LoadingIndicator = ({ message }) => { const { t, language } = useLanguage(); return <div className="flex items-center justify-center p-4 my-4"><Loader2 className="animate-spin h-6 w-6 text-blue-600" /><span className={cn("text-gray-600 text-lg", language === 'ar' ? 'mr-3' : 'ms-3')}>{message || t('loadingMessage')}</span></div>; };
 const Message = ({ type, title, message, children }) => { const { language } = useLanguage(); return <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className={cn('p-4 rounded-md my-4 border', type === 'success' ? 'bg-green-50 border-green-300 text-green-800' : 'bg-red-50 border-red-300 text-red-800')}><div className="flex"><div className="flex-shrink-0">{type === 'success' ? <CheckCircle className="h-5 w-5 text-green-500" /> : <AlertCircle className="h-5 w-5 text-red-500" />}</div><div className={language === 'ar' ? "mr-3" : "ml-3"}>{title && <h3 className="text-sm font-medium">{title}</h3>}<div className={cn("text-sm", title && "mt-2")}>{message}{children}</div></div></div></motion.div>; };
-const AgreementModal = ({ isOpen, onClose }) => { const { t, language } = useLanguage(); if (!isOpen) return null; return <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-[60]" onClick={onClose}><Card className="w-full max-w-2xl bg-white shadow-2xl rounded-lg overflow-hidden" onClick={e => e.stopPropagation()}><CardHeader className="bg-gray-100 border-b"><div className="flex justify-between items-center"><CardTitle className="flex items-center text-xl md:text-2xl"><FileCheck2 className={cn("h-6 w-6 text-blue-600", language === 'ar' ? 'ml-2' : 'mr-2')} />{t('agreementModalTitle')}</CardTitle><Button variant="ghost" size="icon" onClick={onClose}><X className="h-5 w-5"/></Button></div></CardHeader><CardContent className="p-6 max-h-[70vh] overflow-y-auto prose prose-sm max-w-none"><p>{t('agreementTextLine1')}</p><h3 className="font-semibold text-lg mt-4 mb-2">{t('agreementServiceTitle')}</h3><p>{t('agreementServiceText1')}</p></CardContent><CardFooter className="bg-gray-100 border-t"><Button onClick={onClose} className="w-full" size="lg"><CheckCircle className={cn("h-5 w-5", language === 'ar' ? 'ml-2' : 'mr-2')} />{t('iAgreeButton')}</Button></CardFooter></Card></motion.div>; };
