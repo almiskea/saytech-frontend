@@ -71,6 +71,16 @@ const AboutUsPage = () => {
                     {t('aboutJoinUsDesc')}
                 </p>
             </div>
+
+            <div className="bg-white p-8 rounded-lg shadow-lg mt-12">
+                <h2 className="text-3xl font-semibold text-gray-800 mb-6 text-center">{t('shippingPolicyTitle')}</h2>
+                <ul className="list-disc list-inside text-gray-700 leading-relaxed space-y-4">
+                    <li>{t('shippingPolicyContact')}</li>
+                    <li>{t('shippingPolicyCosts')}</li>
+                    <li>{t('shippingPolicyReturn')}</li>
+                    <li>{t('shippingPolicyOwnership')}</li>
+                </ul>
+            </div>
         </motion.div>
     );
 };

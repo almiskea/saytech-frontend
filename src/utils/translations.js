@@ -86,6 +86,13 @@ export const translations = {
         aboutJoinUsTitle: "Join Our Story of Success",
         aboutJoinUsDesc: "Trust us with your device, and let us make you our next success story. We're not just recovering data; we're restoring peace of mind.",
 
+        // Shipping Policy
+        shippingPolicyTitle: "Delivery and Shipping Policy",
+        shippingPolicyContact: "Our shipping partner will contact you within 48 business hours to arrange the pickup of your device.",
+        shippingPolicyCosts: "Shipping costs, for both sending the device to us and returning it, are the customer's responsibility.",
+        shippingPolicyReturn: "After successful data recovery, we will ship your recovered data within 48 business hours.",
+        shippingPolicyOwnership: "As part of the service agreement, ownership of the original device is transferred to Say Tech upon completion of the process.",
+
 
         // Request Form Page
         requestServiceTitle: "Request Data Recovery Service",
@@ -409,6 +416,13 @@ export const translations = {
         aboutFeature3Desc: "نستثمر في أحدث الأدوات والتقنيات للتعامل مع أصعب سيناريوهات استعادة البيانات.",
         aboutJoinUsTitle: "انضم إلى قصة نجاحنا",
         aboutJoinUsDesc: "ثق بنا بجهازك، ودعنا نجعلك قصة نجاحنا التالية. نحن لا نستعيد البيانات فقط؛ نحن نعيد راحة البال.",
+
+        // Shipping Policy
+        shippingPolicyTitle: "سياسة التوصيل والشحن",
+        shippingPolicyContact: "سيتصل بك شريك الشحن لدينا في غضون 48 ساعة عمل لترتيب استلام جهازك.",
+        shippingPolicyCosts: "تكاليف الشحن، سواء لإرسال الجهاز إلينا أو إعادته، هي مسؤولية العميل.",
+        shippingPolicyReturn: "بعد نجاح استعادة البيانات، سنقوم بشحن بياناتك المستردة في غضون 48 ساعة عمل.",
+        shippingPolicyOwnership: "كجزء من اتفاقية الخدمة، تنتقل ملكية الجهاز الأصلي إلى ساي تك عند اكتمال العملية.",
 
 
         // Request Form Page
