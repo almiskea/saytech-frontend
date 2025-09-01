@@ -93,6 +93,7 @@ const ContactUsPage = () => {
                             <p className="flex items-center"><Mail className="mr-2 h-5 w-5 text-gray-500" /> info@say.tech</p>
                             <p className="flex items-center"><Phone className="mr-2 h-5 w-5 text-gray-500" /> +966 55 555 5555</p>
                             <p className="flex items-center"><MapPin className="mr-2 h-5 w-5 text-gray-500" /> {t('contactAddress')}</p>
+                            <p className="flex items-center"><MapPin className="mr-2 h-5 w-5 text-gray-500" /> {t('contactPOBox')}</p>
                         </CardContent>
                     </Card>
                     <Card>

@@ -14,7 +14,11 @@ import WelcomePage from './components/pages/WelcomePage';
 import PaymentCallbackPage from './components/pages/PaymentCallbackPage';
 import ContactUsPage from './components/pages/ContactUsPage';
 import AboutUsPage from './components/pages/AboutUsPage';
+import TermsAndConditionsPage from './components/pages/TermsAndConditionsPage';
 import { Button } from './components/common/ui-utils';
+import { ReactComponent as VisaLogo } from './assets/visa.svg';
+import { ReactComponent as MasterCardLogo } from './assets/mastercard.svg';
+import { ReactComponent as MadaLogo } from './assets/mada.svg';
 
 // --- Utility Functions ---
 const cn = (...inputs) => inputs.filter(Boolean).join(' ');
@@ -209,6 +213,7 @@ function AppInternal() {
             case 'status': return <StatusCheckPage navigateTo={navigateTo} />;
             case 'contact': return <ContactUsPage />;
             case 'about': return <AboutUsPage />;
+            case 'terms': return <TermsAndConditionsPage />;
             case 'adminLogin': 
                 // Redirect to welcome since we now use Auth0 for authentication
                 return <WelcomePage navigateTo={navigateTo} />;
@@ -249,6 +254,11 @@ function AppInternal() {
             </main>
             <footer className="text-center py-8 mt-12 border-t border-gray-300 bg-gray-50">
                 <div className="container mx-auto px-6 text-gray-600">
+                    <div className="flex justify-center space-x-4 mb-4">
+                        <VisaLogo className="h-8" />
+                        <MasterCardLogo className="h-8" />
+                        <MadaLogo className="h-8" />
+                    </div>
                     <div className="mb-6">
                         <h4 className="text-lg font-semibold text-gray-800 mb-2">{t('footerFollowUs')}</h4>
                         <div className="flex justify-center space-x-4">
@@ -259,6 +269,11 @@ function AppInternal() {
                     </div>
                     <p className="text-gray-600 mt-8">© {new Date().getFullYear()} {t('footerRightsReserved', { year: ''})}</p> 
                     <p className="text-sm text-gray-500">{t('footerServiceLocation')}</p>
+                    <div className="mt-4">
+                        <button onClick={() => navigateTo('terms')} className="text-sm text-gray-500 hover:text-blue-500 underline">
+                            {t('tncTitle')}
+                        </button>
+                    </div>
                 </div>
             </footer>
         </div>

@@ -70,6 +70,7 @@ export const translations = {
         messageSentError: "Failed to send message. Please try again.",
         contactInfoTitle: "Contact Information",
         contactAddress: "King Abdulaziz Road, Saihat, Saudi Arabia",
+        contactPOBox: "P.O. Box: [Your P.O. Box Here]",
 
         // About Us Page
         aboutTitle: "About Say Tech",
@@ -95,9 +96,10 @@ export const translations = {
 
         // Refund Policy
         refundPolicyTitle: "Refund Policy",
-        refundPolicyGeneral: "Refunds will be credited to the original mode of payment.",
+        refundPolicyGeneral: "Refunds will be credited to the original mode of payment and processed within 10 to 45 days, depending on the issuing bank of the credit card.",
         refundPolicyCancellation: "A full refund is available if the cancellation is requested before the device has been shipped to our store, or within 10 days of payment if the device has not yet been shipped.",
         refundPolicyPartial: "In cases where data recovery is not possible, a partial refund of 1200 SAR will be issued. A fee of 300 SAR is retained for the technical evaluation and processing.",
+        refundPolicyDamaged: "A full refund will be issued if the device is damaged during shipping.",
 
         // Privacy Policy
         privacyPolicyTitle: "Privacy Policy",
@@ -105,6 +107,29 @@ export const translations = {
         privacyPolicyDataHandling: "Data Handling: Once your data is recovered, it is immediately transferred to a secure, encrypted hard drive. This hard drive is then prepared for shipment back to you.",
         privacyPolicyConfidentiality: "Confidentiality: Our recovery process is designed to be non-intrusive. Our technicians do not view the contents of your files. We maintain strict confidentiality and only access the data structure necessary to perform the recovery.",
         privacyPolicySecurity: "Security: We implement a variety of security measures to maintain the safety of your personal information and recovered data throughout the entire process.",
+        privacyPolicyNoStore: "All credit/debit cards’ details and personally identifiable information will NOT be stored, sold, shared, rented or leased to any third parties.",
+        privacyPolicyPaymentProvider: "If you make a payment for our products or services on our website, the details you are asked to submit will be provided directly to our payment provider via a secured connection.",
+        privacyPolicyThirdPartyLinks: "We are not responsible for the privacy policies of websites to which we link. If you provide any information to such third parties, different rules regarding the collection and use of your personal information may apply.",
+        privacyPolicyAds: "Currently, we do not use third-party ad networks. However, in the future, some advertisements may be delivered by third parties who may collect information about your online activities. The information practices of these third parties are not covered by this privacy policy.",
+
+        // Terms and Conditions
+        tncTitle: "Terms and Conditions",
+        tncIntro: "Welcome to Say Tech. These terms and conditions outline the rules and regulations for the use of our website and services.",
+        tncGoverningLawTitle: "Governing Law & Jurisdiction",
+        tncGoverningLawText1: "Any dispute or claim arising out of or in connection with this website shall be governed and construed in accordance with the laws of {country}.",
+        tncGoverningLawText2: "{country} is our country of domicile.",
+        tncUserAgeTitle: "User Age",
+        tncUserAgeText: "Customers using the website who are Minors/under the age of 18 shall not register as a User of the website and shall not transact on or use the website.",
+        tncPaymentTitle: "Payment",
+        tncPaymentText: "We accept payments online using Visa and MasterCard credit/debit card in {currencies}.",
+        tncCardholderResponsibility: "The cardholder must retain a copy of transaction records and Merchant policies and rules.",
+        tncAccountConfidentiality: "User is responsible for maintaining the confidentiality of his account.",
+        tncPolicyUpdatesTitle: "Policy Updates",
+        tncPolicyUpdatesText: "The Website Policies and Terms & Conditions may be changed or updated occasionally to meet the requirements and standards. Therefore the Customers’ are encouraged to frequently visit these sections in order to be updated about the changes on the website. Modifications will be effective on the day they are posted.",
+        tncOfacTitle: "OFAC Sanctioned Countries",
+        tncOfacText: "{websiteUrl} will NOT deal or provide any services or products to any of OFAC (Office of Foreign Assets Control) sanctions countries in accordance with the law of {country}.",
+        tncMultipleTransactions: "Multiple transactions may result in multiple postings to the cardholder’s monthly statement.",
+        countryName: "Saudi Arabia",
 
 
         // Request Form Page
@@ -414,6 +439,7 @@ export const translations = {
         messageSentError: "فشل إرسال الرسالة. يرجى المحاولة مرة أخرى.",
         contactInfoTitle: "معلومات الاتصال",
         contactAddress: "طريق الملك عبد العزيز، سيهات، المملكة العربية السعودية",
+        contactPOBox: "ص.ب: [صندوق البريد الخاص بك هنا]",
 
         // About Us Page
         aboutTitle: "عن ساي تك",
@@ -439,9 +465,10 @@ export const translations = {
 
         // Refund Policy
         refundPolicyTitle: "سياسة استرداد الأموال",
-        refundPolicyGeneral: "سيتم إضافة المبالغ المستردة إلى طريقة الدفع الأصلية.",
+        refundPolicyGeneral: "سيتم إضافة المبالغ المستردة إلى طريقة الدفع الأصلية وستتم معالجتها في غضون 10 إلى 45 يومًا، اعتمادًا على البنك المصدر لبطاقة الائتمان.",
         refundPolicyCancellation: "استرداد كامل المبلغ متاح إذا تم طلب الإلغاء قبل شحن الجهاز إلى متجرنا، أو في غضون 10 أيام من الدفع إذا لم يتم شحن الجهاز بعد.",
         refundPolicyPartial: "في الحالات التي يتعذر فيها استرداد البيانات، سيتم إصدار استرداد جزئي بقيمة 1200 ريال سعودي. يتم الاحتفاظ برسوم قدرها 300 ريال سعودي للتقييم الفني والمعالجة.",
+        refundPolicyDamaged: "سيتم إصدار استرداد كامل المبلغ في حالة تلف الجهاز أثناء الشحن.",
 
         // Privacy Policy
         privacyPolicyTitle: "سياسة الخصوصية",
@@ -449,6 +476,29 @@ export const translations = {
         privacyPolicyDataHandling: "التعامل مع البيانات: بمجرد استعادة بياناتك، يتم نقلها فورًا إلى قرص صلب آمن ومشفّر. ثم يتم تجهيز هذا القرص الصلب للشحن إليك.",
         privacyPolicyConfidentiality: "السرية: تم تصميم عملية الاسترداد لدينا لتكون غير تدخلية. لا يطلع الفنيون لدينا على محتويات ملفاتك. نحافظ على سرية تامة ولا نصل إلا إلى بنية البيانات اللازمة لإجراء الاسترداد.",
         privacyPolicySecurity: "الأمان: نطبق مجموعة متنوعة من الإجراءات الأمنية للحفاظ على سلامة معلوماتك الشخصية وبياناتك المستردة طوال العملية بأكملها.",
+        privacyPolicyNoStore: "لن يتم تخزين أو بيع أو مشاركة أو تأجير أو تأجير أي من تفاصيل بطاقات الائتمان/الخصم والمعلومات الشخصية لأي طرف ثالث.",
+        privacyPolicyPaymentProvider: "إذا قمت بالدفع مقابل منتجاتنا أو خدماتنا على موقعنا، فسيتم تقديم التفاصيل التي يُطلب منك إرسالها مباشرةً إلى مزود الدفع الخاص بنا عبر اتصال آمن.",
+        privacyPolicyThirdPartyLinks: "نحن لسنا مسؤولين عن سياسات الخصوصية للمواقع التي نرتبط بها. إذا قمت بتقديم أي معلومات إلى هذه الأطراف الثالثة، فقد يتم تطبيق قواعد مختلفة فيما يتعلق بجمع واستخدام معلوماتك الشخصية.",
+        privacyPolicyAds: "حاليًا، لا نستخدم شبكات إعلانية تابعة لجهات خارجية. ومع ذلك، في المستقبل، قد يتم تسليم بعض الإعلانات بواسطة جهات خارجية قد تجمع معلومات حول أنشطتك عبر الإنترنت. لا تغطي سياسة الخصوصية هذه ممارسات المعلومات الخاصة بهذه الأطراف الثالثة.",
+
+        // Terms and Conditions
+        tncTitle: "الشروط والأحكام",
+        tncIntro: "مرحبًا بك في ساي تك. تحدد هذه الشروط والأحكام القواعد واللوائح الخاصة باستخدام موقعنا وخدماتنا.",
+        tncGoverningLawTitle: "القانون الحاكم والاختصاص القضائي",
+        tncGoverningLawText1: "أي نزاع أو مطالبة تنشأ عن أو فيما يتعلق بهذا الموقع الإلكتروني يجب أن تخضع وتفسر وفقًا لقوانين {country}.",
+        tncGoverningLawText2: "{country} هي بلد إقامتنا.",
+        tncUserAgeTitle: "عمر المستخدم",
+        tncUserAgeText: "لا يجوز للعملاء الذين يستخدمون الموقع وهم قاصرون / تحت سن 18 عامًا التسجيل كمستخدم للموقع ولا يجوز لهم التعامل أو استخدام الموقع.",
+        tncPaymentTitle: "الدفع",
+        tncPaymentText: "نقبل الدفع عبر الإنترنت باستخدام بطاقات فيزا وماستركارد الائتمانية / الخصم المباشر بعملة {currencies}.",
+        tncCardholderResponsibility: "يجب على حامل البطاقة الاحتفاظ بنسخة من سجلات المعاملات وسياسات وقواعد التاجر.",
+        tncAccountConfidentiality: "المستخدم مسؤول عن الحفاظ على سرية حسابه.",
+        tncPolicyUpdatesTitle: "تحديثات السياسة",
+        tncPolicyUpdatesText: "قد يتم تغيير أو تحديث سياسات الموقع والشروط والأحكام من حين لآخر لتلبية المتطلبات والمعايير. لذلك، يتم تشجيع العملاء على زيارة هذه الأقسام بشكل متكرر من أجل الاطلاع على التغييرات على الموقع. ستكون التعديلات سارية المفعول في اليوم الذي يتم نشرها فيه.",
+        tncOfacTitle: "الدول الخاضعة لعقوبات مكتب مراقبة الأصول الأجنبية",
+        tncOfacText: "لن يتعامل {websiteUrl} أو يقدم أي خدمات أو منتجات إلى أي من البلدان الخاضعة لعقوبات مكتب مراقبة الأصول الأجنبية (OFAC) وفقًا لقانون {country}.",
+        tncMultipleTransactions: "قد تؤدي المعاملات المتعددة إلى عمليات قيد متعددة في كشف الحساب الشهري لحامل البطاقة.",
+        countryName: "المملكة العربية السعودية",
 
 
         // Request Form Page

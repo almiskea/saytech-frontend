@@ -88,6 +88,7 @@ const AboutUsPage = () => {
                     <li>{t('refundPolicyGeneral')}</li>
                     <li>{t('refundPolicyCancellation')}</li>
                     <li>{t('refundPolicyPartial')}</li>
+                    <li>{t('refundPolicyDamaged')}</li>
                 </ul>
             </div>
 
@@ -100,6 +101,10 @@ const AboutUsPage = () => {
                         <li><strong>{t('privacyPolicyConfidentiality').split(': ')[0]}:</strong> {t('privacyPolicyConfidentiality').split(': ')[1]}</li>
                         <li><strong>{t('privacyPolicySecurity').split(': ')[0]}:</strong> {t('privacyPolicySecurity').split(': ')[1]}</li>
                     </ul>
+                    <p>{t('privacyPolicyNoStore')}</p>
+                    <p>{t('privacyPolicyPaymentProvider')}</p>
+                    <p>{t('privacyPolicyThirdPartyLinks')}</p>
+                    <p>{t('privacyPolicyAds')}</p>
                 </div>
             </div>
         </motion.div>
