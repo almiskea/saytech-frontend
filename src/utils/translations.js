@@ -69,7 +69,9 @@ export const translations = {
         messageSentSuccess: "Your message has been sent successfully!",
         messageSentError: "Failed to send message. Please try again.",
         contactInfoTitle: "Contact Information",
-        contactAddress: "King Abdulaziz Road, Saihat, Saudi Arabia",
+        contactAddress: "7575 King Abdulaziz Rd, Ghirnatah, Saihat 32434, Saudi Arabia",
+        contactPhone: "+966547399661",
+        contactWhatsApp: "Contact us on WhatsApp",
         contactPOBox: "P.O. Box: [Your P.O. Box Here]",
 
         // About Us Page
@@ -438,7 +440,9 @@ export const translations = {
         messageSentSuccess: "تم إرسال رسالتك بنجاح!",
         messageSentError: "فشل إرسال الرسالة. يرجى المحاولة مرة أخرى.",
         contactInfoTitle: "معلومات الاتصال",
-        contactAddress: "طريق الملك عبد العزيز، سيهات، المملكة العربية السعودية",
+        contactAddress: "7575 طريق الملك عبدالعزيز، غرناطة، سيهات 32434، المملكة العربية السعودية",
+        contactPhone: "+966547399661",
+        contactWhatsApp: "تواصل معنا عبر الواتساب",
         contactPOBox: "ص.ب: [صندوق البريد الخاص بك هنا]",
 
         // About Us Page
