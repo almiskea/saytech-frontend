@@ -11,7 +11,7 @@ import { SelectTrigger } from '../common/Select/SelectTrigger';
 import { SelectValue } from '../common/Select/SelectValue';
 import Message from '../common/Message';
 import AgreementModal from '../common/AgreementModel';
-import { cn } from '../../utils/helpers';
+import { cn, isMobileDevice } from '../../utils/helpers';
 
 const MOCK_SERVICE_FEE = 2000;
 
@@ -244,70 +244,119 @@ const RequestFormPage = ({ navigateTo }) => {
                 amount: MOCK_SERVICE_FEE,
             });
             
-            const paymentWindow = window.open('', '_blank', 'width=800,height=600');
+            // Mobile vs Desktop Payment Handling:
+            // - Mobile: Opens payment in the same tab (_self) for better compatibility
+            //   as mobile browsers often block popups or handle them poorly
+            // - Desktop: Opens payment in a popup window for better UX
+            const isMobile = isMobileDevice();
+            
+            let paymentWindow;
+            
+            if (isMobile) {
+                // On mobile, open in the same tab/window for better compatibility
+                paymentWindow = window.open('', '_self');
+            } else {
+                // On desktop, use popup with responsive dimensions
+                const width = Math.min(800, window.innerWidth - 100);
+                const height = Math.min(600, window.innerHeight - 100);
+                const left = (window.innerWidth - width) / 2;
+                const top = (window.innerHeight - height) / 2;
+                
+                paymentWindow = window.open('', '_blank', 
+                    `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`);
+            }
+            
             if (paymentWindow) {
                 setPaymentWindowRef(paymentWindow);
                 paymentWindow.document.write(paymentHtml);
                 paymentWindow.document.close();
                 
-                // Check periodically if the popup was closed by the user
-                const checkInterval = setInterval(() => {
-                    try {
-                        if (paymentWindow.closed) {
-                            console.log('Payment window was closed by user');
+                // Different handling for mobile vs desktop
+                if (!isMobile) {
+                    // Desktop: Check periodically if the popup was closed by the user
+                    const checkInterval = setInterval(() => {
+                        try {
+                            if (paymentWindow.closed) {
+                                console.log('Payment window was closed by user');
+                                clearInterval(checkInterval);
+                                setPaymentCheckInterval(null);
+                                setPaymentWindowRef(null);
+                                
+                                // Only show error if we're still in paying status
+                                // We need to check localStorage to see if payment was processed
+                                const pendingData = localStorage.getItem('pendingRequestData');
+                                if (pendingData) {
+                                    // Payment data still pending, means payment wasn't completed
+                                    setFormMessage({ 
+                                        type: 'error', 
+                                        title: t('paymentCancelledTitle') || 'Payment Cancelled', 
+                                        text: t('paymentCancelledText') || 'Payment was cancelled. Please try again.' 
+                                    });
+                                    setSubmissionStatus('idle');
+                                    localStorage.removeItem('pendingRequestData');
+                                }
+                            }
+                        } catch (e) {
+                            // Can't access the window, might be cross-origin
                             clearInterval(checkInterval);
                             setPaymentCheckInterval(null);
-                            setPaymentWindowRef(null);
-                            
-                            // Only show error if we're still in paying status
-                            // We need to check localStorage to see if payment was processed
-                            const pendingData = localStorage.getItem('pendingRequestData');
-                            if (pendingData) {
-                                // Payment data still pending, means payment wasn't completed
-                                setFormMessage({ 
-                                    type: 'error', 
-                                    title: t('paymentCancelledTitle') || 'Payment Cancelled', 
-                                    text: t('paymentCancelledText') || 'Payment was cancelled. Please try again.' 
-                                });
-                                setSubmissionStatus('idle');
-                                localStorage.removeItem('pendingRequestData');
-                            }
                         }
-                    } catch (e) {
-                        // Can't access the window, might be cross-origin
+                    }, 1000);
+                    
+                    setPaymentCheckInterval(checkInterval);
+                    setPaymentCheckInterval(checkInterval);
+                    
+                    // Clear the interval after 10 minutes (maximum payment time)
+                    const timeoutId = setTimeout(() => {
                         clearInterval(checkInterval);
                         setPaymentCheckInterval(null);
-                    }
-                }, 1000);
-                
-                setPaymentCheckInterval(checkInterval);
-                
-                // Clear the interval after 10 minutes (maximum payment time)
-                const timeoutId = setTimeout(() => {
-                    clearInterval(checkInterval);
-                    setPaymentCheckInterval(null);
-                    setPaymentTimeoutId(null);
-                    
-                    // Check if payment is still pending
-                    const pendingData = localStorage.getItem('pendingRequestData');
-                    if (pendingData) {
-                        console.log('Payment timeout reached');
-                        setFormMessage({ 
-                            type: 'error', 
-                            title: t('paymentTimeoutTitle') || 'Payment Timeout', 
-                            text: t('paymentTimeoutText') || 'Payment process took too long. Please try again.' 
-                        });
-                        setSubmissionStatus('idle');
-                        localStorage.removeItem('pendingRequestData');
+                        setPaymentTimeoutId(null);
                         
-                        // Close the payment window if still open
-                        if (paymentWindow && !paymentWindow.closed) {
-                            paymentWindow.close();
+                        // Check if payment is still pending
+                        const pendingData = localStorage.getItem('pendingRequestData');
+                        if (pendingData) {
+                            console.log('Payment timeout reached');
+                            setFormMessage({ 
+                                type: 'error', 
+                                title: t('paymentTimeoutTitle') || 'Payment Timeout', 
+                                text: t('paymentTimeoutText') || 'Payment process took too long. Please try again.' 
+                            });
+                            setSubmissionStatus('idle');
+                            localStorage.removeItem('pendingRequestData');
+                            
+                            // Close the payment window if still open
+                            if (paymentWindow && !paymentWindow.closed) {
+                                paymentWindow.close();
+                            }
                         }
-                    }
-                }, 600000); // 10 minutes
-                
-                setPaymentTimeoutId(timeoutId);
+                    }, 600000); // 10 minutes
+                    
+                    setPaymentTimeoutId(timeoutId);
+                } else {
+                    // Mobile: Since we're redirecting in the same window, 
+                    // the form component will be unmounted, so no need to check for closure
+                    console.log('Mobile payment redirect initiated');
+                    
+                    // Set a shorter timeout for mobile since we can't track window closure
+                    const timeoutId = setTimeout(() => {
+                        setPaymentTimeoutId(null);
+                        
+                        // Check if payment is still pending
+                        const pendingData = localStorage.getItem('pendingRequestData');
+                        if (pendingData) {
+                            console.log('Mobile payment timeout reached');
+                            setFormMessage({ 
+                                type: 'error', 
+                                title: t('paymentTimeoutTitle') || 'Payment Timeout', 
+                                text: t('paymentTimeoutText') || 'Payment process took too long. Please try again.' 
+                            });
+                            setSubmissionStatus('idle');
+                            localStorage.removeItem('pendingRequestData');
+                        }
+                    }, 600000); // 10 minutes
+                    
+                    setPaymentTimeoutId(timeoutId);
+                }
             } else {
                 setFormMessage({ type: 'error', title: t('popupBlockedTitle'), text: t('popupBlockedText') });
                 setSubmissionStatus('idle');
@@ -471,7 +520,12 @@ const RequestFormPage = ({ navigateTo }) => {
                                 <div className="flex items-center">
                                     <Loader2 className={cn("h-5 w-5 animate-spin text-blue-600", language === 'ar' ? 'ml-3' : 'mr-3')} />
                                     <span className="text-blue-700">
-                                        {t('paymentInProgressMessage') || 'Payment in progress. Please complete the payment in the popup window...'}
+                                        {(() => {
+                                            const isMobile = isMobileDevice();
+                                            return isMobile 
+                                                ? (t('paymentInProgressMobileMessage') || 'Redirecting to payment gateway...')
+                                                : (t('paymentInProgressMessage') || 'Payment in progress. Please complete the payment in the popup window...');
+                                        })()}
                                     </span>
                                 </div>
                             </motion.div>
