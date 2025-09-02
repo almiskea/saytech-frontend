@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, CreditCard, Loader2 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageProvider';
@@ -11,7 +11,8 @@ import { SelectTrigger } from '../common/Select/SelectTrigger';
 import { SelectValue } from '../common/Select/SelectValue';
 import Message from '../common/Message';
 import AgreementModal from '../common/AgreementModel';
-import { cn, isMobileDevice } from '../../utils/helpers';
+import PaymentModal from '../common/PaymentModal';
+import { cn } from '../../utils/helpers';
 
 const MOCK_SERVICE_FEE = 2000;
 
@@ -22,9 +23,9 @@ const RequestFormPage = ({ navigateTo }) => {
     const [formMessage, setFormMessage] = useState(null);
     const [loading, setLoading] = useState(false);
     const [paymentSessionId] = useState(() => Date.now().toString()); // Unique session ID for this payment attempt
-    const [paymentWindowRef, setPaymentWindowRef] = useState(null);
-    const [paymentCheckInterval, setPaymentCheckInterval] = useState(null);
-    const [paymentTimeoutId, setPaymentTimeoutId] = useState(null);
+
+    // Debug: Log current state on every render
+    console.log('[RequestFormPage Render] submissionStatus:', submissionStatus, 'finalSubmissionInfo:', finalSubmissionInfo);
 
     const [formData, setFormData] = useState({
         fullName: '', countryCode: '+966', localPhoneNumber: '', email: '', city: '',
@@ -33,23 +34,9 @@ const RequestFormPage = ({ navigateTo }) => {
     });
     const [isAgreementChecked, setIsAgreementChecked] = useState(false);
     const [isAgreementModalOpen, setIsAgreementModalOpen] = useState(false);
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [paymentHtml, setPaymentHtml] = useState('');
     // const [fileName, setFileName] = useState('');
-    
-    // Close payment window if component unmounts
-    useEffect(() => {
-        return () => {
-            if (paymentWindowRef && !paymentWindowRef.closed) {
-                console.log('Closing payment window on component unmount');
-                paymentWindowRef.close();
-            }
-            if (paymentCheckInterval) {
-                clearInterval(paymentCheckInterval);
-            }
-            if (paymentTimeoutId) {
-                clearTimeout(paymentTimeoutId);
-            }
-        };
-    }, [paymentWindowRef, paymentCheckInterval, paymentTimeoutId]);
     
     // Clear any stale payment data on component mount
     useEffect(() => {
@@ -79,125 +66,220 @@ const RequestFormPage = ({ navigateTo }) => {
         };
     }, [paymentSessionId, submissionStatus]); // Include dependencies
     
-    // This effect handles the response from the payment popup
+    // Payment handlers with useCallback to prevent re-renders
+    const handlePaymentComplete = useCallback((paymentResult) => {
+        console.log('[Payment Complete] Starting with paymentResult:', paymentResult);
+        console.log('[Payment Complete] Current formData:', formData);
+        console.log('[Payment Complete] Current finalSubmissionInfo before:', finalSubmissionInfo);
+        
+        // Set submission status to success
+        setSubmissionStatus('success');
+        console.log('[Payment Complete] Set submissionStatus to success');
+        
+        // Create the final submission info with payment details
+        const finalInfo = {
+            transactionId: paymentResult.transactionId || paymentResult.transaction_id,
+            fortId: paymentResult.fortId || paymentResult.fort_id,
+            phoneNumber: formData?.phoneNumber || '',
+            status: paymentResult.status,
+            responseMessage: paymentResult.responseMessage || paymentResult.response_message
+        };
+        
+        console.log('[Payment Complete] Setting finalSubmissionInfo to:', finalInfo);
+        setFinalSubmissionInfo(finalInfo);
+        
+        // Clean up payment modal
+        setIsPaymentModalOpen(false);
+        setLoading(false);
+        
+        // Clear any stored payment data
+        try {
+            localStorage.removeItem('paymentData');
+            sessionStorage.removeItem('paymentCallback');
+            sessionStorage.removeItem('pendingPayment');
+            console.log('[Payment Complete] Cleared storage data');
+        } catch (error) {
+            console.error('[Payment Complete] Error clearing storage:', error);
+        }
+        
+        console.log('[Payment Complete] Final state - submissionStatus: success, finalSubmissionInfo:', finalInfo);
+    }, [formData, finalSubmissionInfo]);
+    
+    const handlePaymentError = useCallback((errorMessage) => {
+        console.log('handlePaymentError called with:', errorMessage);
+        setFormMessage({ 
+            type: 'error', 
+            title: t('paymentFailedTitle'), 
+            text: errorMessage || t('paymentFailedText')
+        });
+        setSubmissionStatus('error');
+        setIsPaymentModalOpen(false);
+        localStorage.removeItem('pendingRequestData');
+    }, [t, setFormMessage, setSubmissionStatus, setIsPaymentModalOpen]);
+    
+    const handlePaymentModalClose = useCallback(() => {
+        setIsPaymentModalOpen(false);
+        setSubmissionStatus('idle');
+        localStorage.removeItem('pendingRequestData');
+    }, [setIsPaymentModalOpen, setSubmissionStatus]);
+    
+    // Check for payment return on component mount
     useEffect(() => {
-        const handlePaymentMessage = async (event) => {
-            // Validate that this is actually a payment message
-            if (!event.data || typeof event.data !== 'object') {
-                // Not an object message, ignore silently
-                return;
-            }
+        const checkPaymentReturn = () => {
+            console.log('checkPaymentReturn called');
             
-            // Check if this is our payment callback message
-            if (!event.data.isPaymentCallback) {
-                // This is not from our payment callback, ignore it
-                // Common messages from extensions or other scripts
-                if (event.data.type || event.data.action || event.data.message) {
-                    console.debug('Ignoring non-payment message:', event.data.type || event.data.action || 'unknown');
-                }
-                return;
-            }
+            // First check sessionStorage for payment callback (mobile flow)
+            const sessionCallback = sessionStorage.getItem('paymentCallback');
+            console.log('Session callback data:', sessionCallback);
             
-            // Check if the message has the expected payment fields
-            if (!('status' in event.data || 'response_message' in event.data || 
-                  'transaction_id' in event.data || 'fort_id' in event.data)) {
-                // This is not a valid payment message, ignore it
-                return;
-            }
-            
-            // Verify session ID matches if available
-            if (event.data.sessionId && event.data.sessionId !== paymentSessionId) {
-                console.log('Ignoring payment message from different session:', event.data.sessionId, 'current:', paymentSessionId);
-                return;
-            }
-            
-            // Optional: Check event.origin for security
-            // if (event.origin !== "http://your-backend-domain.com") return;
-            
-            const { status, response_message, transaction_id, fort_id } = event.data;
-            console.log("Payment response received:", event.data);
-            if (status === "14" || (response_message && response_message.toLowerCase().includes('success'))) {
-                const savedDataString = localStorage.getItem('pendingRequestData');
-                if (savedDataString) {
-                    try {
-                        const savedData = JSON.parse(savedDataString);
-                        const fullPhoneNumber = savedData.countryCode + savedData.localPhoneNumber;
-                        
-                        const serviceRequestData = {
-                            ...savedData,
-                            fullPhoneNumber,
-                            transactionId: transaction_id,
-                            fortId: fort_id,
-                            deviceImageName: savedData.deviceImage ? savedData.deviceImage.name : null,
-                        };
-                        
-                        // Remove temporary fields
-                        delete serviceRequestData.countryCode;
-                        delete serviceRequestData.localPhoneNumber;
-                        delete serviceRequestData.deviceImage;
-                        delete serviceRequestData.sessionId;
-
-                        const requestResponse = await api.submitRequest(serviceRequestData);
-                        setFinalSubmissionInfo({ ...requestResponse.request, phoneNumber: fullPhoneNumber });
-                        setSubmissionStatus('success');
-                        
-                        // Close the payment window if it's still open
-                        if (paymentWindowRef && !paymentWindowRef.closed) {
-                            paymentWindowRef.close();
-                            setPaymentWindowRef(null);
-                        }
-                        // Clear the check interval
-                        if (paymentCheckInterval) {
-                            clearInterval(paymentCheckInterval);
-                            setPaymentCheckInterval(null);
-                        }
-                        // Clear the timeout
-                        if (paymentTimeoutId) {
-                            clearTimeout(paymentTimeoutId);
-                            setPaymentTimeoutId(null);
-                        }
-                    } catch (err) {
-                        setFormMessage({ type: 'error', title: t('submissionFailedTitle'), text: err.message });
-                        setSubmissionStatus('error');
-                    } finally {
-                        localStorage.removeItem('pendingRequestData');
+            if (sessionCallback) {
+                console.log('Found payment callback in sessionStorage');
+                try {
+                    const paymentResult = JSON.parse(sessionCallback);
+                    console.log('Parsed payment result:', paymentResult);
+                    sessionStorage.removeItem('paymentCallback'); // Clean up
+                    
+                    // Process the payment result
+                    console.log('Processing payment from sessionStorage:', paymentResult);
+                    setSubmissionStatus('paying');
+                    
+                    const isSuccess = paymentResult.status === "14" || paymentResult.status === 14 || 
+                        (paymentResult.response_message && paymentResult.response_message.toLowerCase().includes('success'));
+                    
+                    console.log('Is payment successful?', isSuccess, 'Status:', paymentResult.status);
+                    
+                    if (isSuccess) {
+                        console.log('Payment successful from sessionStorage');
+                        handlePaymentComplete({ 
+                            transaction_id: paymentResult.transaction_id, 
+                            fort_id: paymentResult.fort_id, 
+                            status: paymentResult.status,
+                            response_message: paymentResult.response_message 
+                        });
+                    } else {
+                        console.log('Payment failed from sessionStorage:', paymentResult.response_message);
+                        handlePaymentError(paymentResult.response_message || 'Payment failed');
                     }
-                } else {
-                    setFormMessage({ type: 'error', title: t('submissionFailedTitle'), text: "Missing request data." });
-                    setSubmissionStatus('error');
+                    return; // Exit early since we found a callback
+                } catch (e) {
+                    console.error('Error parsing payment callback from sessionStorage:', e);
+                    sessionStorage.removeItem('paymentCallback'); // Clean up invalid data
                 }
-            } else {
-                // Only process as payment failure if we have payment-related fields
-                const failureReason = response_message || 'Unknown reason';
-                console.error('Payment failed with reason:', failureReason);
-                const errorMessage = response_message ? 
-                    `${t('paymentFailedText')} (${failureReason})` : 
-                    t('paymentFailedText');
-                setFormMessage({ type: 'error', title: t('paymentFailedTitle'), text: errorMessage });
-                setSubmissionStatus('error');
-                localStorage.removeItem('pendingRequestData');
+            }
+            
+            // Then check URL parameters (fallback)
+            const urlParams = new URLSearchParams(window.location.search);
+            const hash = window.location.hash;
+            
+            // Check if we're returning from a payment
+            if (urlParams.has('status') || urlParams.has('response_code') || hash.includes('payment')) {
+                console.log('Detected payment return in URL, processing...');
                 
-                // Close the payment window if it's still open
-                if (paymentWindowRef && !paymentWindowRef.closed) {
-                    paymentWindowRef.close();
-                    setPaymentWindowRef(null);
+                const status = urlParams.get('status') || urlParams.get('response_code');
+                const transaction_id = urlParams.get('transaction_id') || urlParams.get('fort_id');
+                const fort_id = urlParams.get('fort_id') || transaction_id;
+                const response_message = urlParams.get('response_message') || urlParams.get('message');
+                
+                // Set paying status to show loading
+                setSubmissionStatus('paying');
+                
+                // Handle the payment response
+                if (status === "14" || status === 14 || 
+                    (response_message && response_message.toLowerCase().includes('success'))) {
+                    console.log('Payment successful from URL, processing completion');
+                    handlePaymentComplete({ transaction_id, fort_id, status, response_message });
+                } else {
+                    console.log('Payment failed from URL:', response_message);
+                    handlePaymentError(response_message || 'Payment failed');
                 }
-                // Clear the check interval
-                if (paymentCheckInterval) {
-                    clearInterval(paymentCheckInterval);
-                    setPaymentCheckInterval(null);
-                }
-                // Clear the timeout
-                if (paymentTimeoutId) {
-                    clearTimeout(paymentTimeoutId);
-                    setPaymentTimeoutId(null);
-                }
+                
+                // Clean up URL
+                window.history.replaceState({}, document.title, window.location.pathname);
             }
         };
+        
+        // Check immediately on mount
+        checkPaymentReturn();
+        
+        // Listen for custom payment callback events
+        const handlePaymentEvent = (event) => {
+            console.log('Received payment callback event:', event.detail);
+            setSubmissionStatus('paying');
+            
+            const paymentResult = event.detail;
+            const isSuccess = paymentResult.status === "14" || paymentResult.status === 14 || 
+                (paymentResult.response_message && paymentResult.response_message.toLowerCase().includes('success'));
+            
+            console.log('Payment event success check:', isSuccess, 'Status:', paymentResult.status);
+            
+            if (isSuccess) {
+                console.log('Payment successful from event');
+                handlePaymentComplete({ 
+                    transaction_id: paymentResult.transaction_id, 
+                    fort_id: paymentResult.fort_id, 
+                    status: paymentResult.status,
+                    response_message: paymentResult.response_message 
+                });
+            } else {
+                console.log('Payment failed from event:', paymentResult.response_message);
+                handlePaymentError(paymentResult.response_message || 'Payment failed');
+            }
+        };
+        
+        // Also listen for hash changes and the custom payment event
+        window.addEventListener('hashchange', checkPaymentReturn);
+        window.addEventListener('paymentCallback', handlePaymentEvent);
+        
+        return () => {
+            window.removeEventListener('hashchange', checkPaymentReturn);
+            window.removeEventListener('paymentCallback', handlePaymentEvent);
+        };
+    }, [handlePaymentComplete, handlePaymentError]); // Include handler dependencies
 
-        window.addEventListener('message', handlePaymentMessage);
-        return () => window.removeEventListener('message', handlePaymentMessage);
-    }, [t, paymentSessionId, paymentWindowRef, paymentCheckInterval, paymentTimeoutId]);
+    // Check for mobile payment return on component mount
+    useEffect(() => {
+        // Check if we're returning from a mobile payment
+        const paymentInProgress = sessionStorage.getItem('paymentInProgress');
+        
+        if (paymentInProgress === 'true') {
+            console.log('Detected return from mobile payment, checking for callback parameters');
+            
+            // Check URL parameters for payment callback
+            const urlParams = new URLSearchParams(window.location.search);
+            const status = urlParams.get('status') || urlParams.get('response_code');
+            const transaction_id = urlParams.get('transaction_id');
+            const fort_id = urlParams.get('fort_id');
+            const response_message = urlParams.get('response_message');
+            
+            if (status || transaction_id || fort_id) {
+                console.log('Found payment callback parameters:', { status, transaction_id, fort_id, response_message });
+                
+                // Clear the payment progress flag
+                sessionStorage.removeItem('paymentInProgress');
+                sessionStorage.removeItem('paymentOrigin');
+                
+                // Process the payment result
+                const paymentResult = { status, transaction_id, fort_id, response_message };
+                
+                if (status === "14" || status === 14 || 
+                    (response_message && response_message.toLowerCase().includes('success'))) {
+                    console.log('Mobile payment successful');
+                    handlePaymentComplete(paymentResult);
+                } else {
+                    console.log('Mobile payment failed');
+                    handlePaymentError(response_message || 'Payment failed');
+                }
+                
+                // Clean up URL parameters
+                const cleanUrl = window.location.protocol + '//' + window.location.host + window.location.pathname;
+                window.history.replaceState({}, document.title, cleanUrl);
+            } else {
+                console.log('No payment parameters found, clearing payment progress flag');
+                sessionStorage.removeItem('paymentInProgress');
+                sessionStorage.removeItem('paymentOrigin');
+            }
+        }
+    }, [handlePaymentComplete, handlePaymentError]); // Run once after handlers are available
 
     const handleProceedToPayment = async (e) => {
         e.preventDefault();
@@ -239,143 +321,18 @@ const RequestFormPage = ({ navigateTo }) => {
                 sessionId: paymentSessionId
             };
             localStorage.setItem('pendingRequestData', JSON.stringify(paymentData));
-            const paymentHtml = await api.initiatePayFortPayment({
+            const paymentHtmlResponse = await api.initiatePayFortPayment({
                 email: formData.email,
                 amount: MOCK_SERVICE_FEE,
             });
             
-            // Mobile vs Desktop Payment Handling:
-            // - Mobile: Opens payment in the same tab (_self) for better compatibility
-            //   as mobile browsers often block popups or handle them poorly
-            // - Desktop: Opens payment in a popup window for better UX
-            const isMobile = isMobileDevice();
-            
-            let paymentWindow;
-            
-            if (isMobile) {
-                // On mobile, open in the same tab/window for better compatibility
-                paymentWindow = window.open('', '_self');
-            } else {
-                // On desktop, use popup with responsive dimensions
-                const width = Math.min(800, window.innerWidth - 100);
-                const height = Math.min(600, window.innerHeight - 100);
-                const left = (window.innerWidth - width) / 2;
-                const top = (window.innerHeight - height) / 2;
-                
-                paymentWindow = window.open('', '_blank', 
-                    `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`);
-            }
-            
-            if (paymentWindow) {
-                setPaymentWindowRef(paymentWindow);
-                paymentWindow.document.write(paymentHtml);
-                paymentWindow.document.close();
-                
-                // Different handling for mobile vs desktop
-                if (!isMobile) {
-                    // Desktop: Check periodically if the popup was closed by the user
-                    const checkInterval = setInterval(() => {
-                        try {
-                            if (paymentWindow.closed) {
-                                console.log('Payment window was closed by user');
-                                clearInterval(checkInterval);
-                                setPaymentCheckInterval(null);
-                                setPaymentWindowRef(null);
-                                
-                                // Only show error if we're still in paying status
-                                // We need to check localStorage to see if payment was processed
-                                const pendingData = localStorage.getItem('pendingRequestData');
-                                if (pendingData) {
-                                    // Payment data still pending, means payment wasn't completed
-                                    setFormMessage({ 
-                                        type: 'error', 
-                                        title: t('paymentCancelledTitle') || 'Payment Cancelled', 
-                                        text: t('paymentCancelledText') || 'Payment was cancelled. Please try again.' 
-                                    });
-                                    setSubmissionStatus('idle');
-                                    localStorage.removeItem('pendingRequestData');
-                                }
-                            }
-                        } catch (e) {
-                            // Can't access the window, might be cross-origin
-                            clearInterval(checkInterval);
-                            setPaymentCheckInterval(null);
-                        }
-                    }, 1000);
-                    
-                    setPaymentCheckInterval(checkInterval);
-                    setPaymentCheckInterval(checkInterval);
-                    
-                    // Clear the interval after 10 minutes (maximum payment time)
-                    const timeoutId = setTimeout(() => {
-                        clearInterval(checkInterval);
-                        setPaymentCheckInterval(null);
-                        setPaymentTimeoutId(null);
-                        
-                        // Check if payment is still pending
-                        const pendingData = localStorage.getItem('pendingRequestData');
-                        if (pendingData) {
-                            console.log('Payment timeout reached');
-                            setFormMessage({ 
-                                type: 'error', 
-                                title: t('paymentTimeoutTitle') || 'Payment Timeout', 
-                                text: t('paymentTimeoutText') || 'Payment process took too long. Please try again.' 
-                            });
-                            setSubmissionStatus('idle');
-                            localStorage.removeItem('pendingRequestData');
-                            
-                            // Close the payment window if still open
-                            if (paymentWindow && !paymentWindow.closed) {
-                                paymentWindow.close();
-                            }
-                        }
-                    }, 600000); // 10 minutes
-                    
-                    setPaymentTimeoutId(timeoutId);
-                } else {
-                    // Mobile: Since we're redirecting in the same window, 
-                    // the form component will be unmounted, so no need to check for closure
-                    console.log('Mobile payment redirect initiated');
-                    
-                    // Set a shorter timeout for mobile since we can't track window closure
-                    const timeoutId = setTimeout(() => {
-                        setPaymentTimeoutId(null);
-                        
-                        // Check if payment is still pending
-                        const pendingData = localStorage.getItem('pendingRequestData');
-                        if (pendingData) {
-                            console.log('Mobile payment timeout reached');
-                            setFormMessage({ 
-                                type: 'error', 
-                                title: t('paymentTimeoutTitle') || 'Payment Timeout', 
-                                text: t('paymentTimeoutText') || 'Payment process took too long. Please try again.' 
-                            });
-                            setSubmissionStatus('idle');
-                            localStorage.removeItem('pendingRequestData');
-                        }
-                    }, 600000); // 10 minutes
-                    
-                    setPaymentTimeoutId(timeoutId);
-                }
-            } else {
-                setFormMessage({ type: 'error', title: t('popupBlockedTitle'), text: t('popupBlockedText') });
-                setSubmissionStatus('idle');
-                localStorage.removeItem('pendingRequestData');
-            }
+            // Store payment HTML and open modal
+            setPaymentHtml(paymentHtmlResponse);
+            setIsPaymentModalOpen(true);
         } catch(error) {
              setFormMessage({ type: 'error', title: t('submissionFailedTitle'), text: error.message || t('submissionFailedText') });
              localStorage.removeItem('pendingRequestData');
              setSubmissionStatus('idle');
-             // Clear any refs
-             setPaymentWindowRef(null);
-             if (paymentCheckInterval) {
-                clearInterval(paymentCheckInterval);
-                setPaymentCheckInterval(null);
-             }
-             if (paymentTimeoutId) {
-                clearTimeout(paymentTimeoutId);
-                setPaymentTimeoutId(null);
-             }
         } finally {
             setLoading(false);
         }
@@ -398,25 +355,45 @@ const RequestFormPage = ({ navigateTo }) => {
     const requiredStar = <span className="text-red-500">{t('requiredFieldIndicator')}</span>;
 
     // Final success/error view
-    if (submissionStatus === 'success' && finalSubmissionInfo) {
-        return (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-2xl mx-auto text-center">
-                 <Message type="success" title={t('requestSubmittedTitle')} message={t('requestSubmittedText')} />
-                 <Alert variant="success" className="mt-6 text-left">
-                    <CheckCircle className="h-5 w-5" />
-                    <AlertTitle>{t('importantSaveInfoTitle')}</AlertTitle>
-                    <AlertDescription>
-                        <p className="mb-2">{t('importantSaveInfoText')}</p>
-                        <ul className={cn("list-inside space-y-1 bg-green-100 p-3 rounded-md", language === 'ar' ? 'list-disc text-right' : 'list-disc text-left')}>
-                            <li><strong>{t('requestIdLabel')}</strong> <span className="font-mono text-green-700">{finalSubmissionInfo.fortId}</span></li>
-                            <li><strong>{t('transactionIdLabel')}</strong> <span className="font-mono text-green-700">{finalSubmissionInfo.transactionId}</span></li>
-                        </ul>
-                        <p className="mt-3">{t('contactWhatsAppText', {phoneNumber: finalSubmissionInfo.phoneNumber})}</p>
-                         <Button variant="outline" size="sm" className="mt-4" onClick={() => navigateTo('status')}>{t('checkStatusNowButton')}</Button>
-                    </AlertDescription>
-                </Alert>
-            </motion.div>
-        );
+    if (submissionStatus === 'success') {
+        console.log('Rendering success view, finalSubmissionInfo:', finalSubmissionInfo);
+        
+        if (finalSubmissionInfo) {
+            return (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-2xl mx-auto text-center">
+                     <Message type="success" title={t('requestSubmittedTitle')} message={t('requestSubmittedText')} />
+                     <Alert variant="success" className="mt-6 text-left">
+                        <CheckCircle className="h-5 w-5" />
+                        <AlertTitle>{t('importantSaveInfoTitle')}</AlertTitle>
+                        <AlertDescription>
+                            <p className="mb-2">{t('importantSaveInfoText')}</p>
+                            <ul className={cn("list-inside space-y-1 bg-green-100 p-3 rounded-md", language === 'ar' ? 'list-disc text-right' : 'list-disc text-left')}>
+                                <li><strong>{t('requestIdLabel')}</strong> <span className="font-mono text-green-700">{finalSubmissionInfo.fortId || 'N/A'}</span></li>
+                                <li><strong>{t('transactionIdLabel')}</strong> <span className="font-mono text-green-700">{finalSubmissionInfo.transactionId || 'N/A'}</span></li>
+                            </ul>
+                            <p className="mt-3">{t('contactWhatsAppText', {phoneNumber: finalSubmissionInfo.phoneNumber || 'N/A'})}</p>
+                             <Button variant="outline" size="sm" className="mt-4" onClick={() => navigateTo('status')}>{t('checkStatusNowButton')}</Button>
+                        </AlertDescription>
+                    </Alert>
+                </motion.div>
+            );
+        } else {
+            // Fallback success view when finalSubmissionInfo is not available
+            console.log('Showing fallback success view - no finalSubmissionInfo');
+            return (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-2xl mx-auto text-center">
+                     <Message type="success" title={t('requestSubmittedTitle') || 'Payment Successful'} message={t('requestSubmittedText') || 'Your payment has been processed successfully.'} />
+                     <Alert variant="success" className="mt-6 text-left">
+                        <CheckCircle className="h-5 w-5" />
+                        <AlertTitle>{t('importantSaveInfoTitle') || 'Important Information'}</AlertTitle>
+                        <AlertDescription>
+                            <p className="mb-2">{t('paymentSuccessMessage') || 'Your payment has been processed successfully. You will receive a confirmation shortly.'}</p>
+                             <Button variant="outline" size="sm" className="mt-4" onClick={() => navigateTo('status')}>{t('checkStatusNowButton') || 'Check Status'}</Button>
+                        </AlertDescription>
+                    </Alert>
+                </motion.div>
+            );
+        }
     }
     
     if (submissionStatus === 'error') {
@@ -428,20 +405,8 @@ const RequestFormPage = ({ navigateTo }) => {
                     setFormMessage(null);
                     // Clear any stale data
                     localStorage.removeItem('pendingRequestData');
-                    // Close payment window if still open
-                    if (paymentWindowRef && !paymentWindowRef.closed) {
-                        paymentWindowRef.close();
-                        setPaymentWindowRef(null);
-                    }
-                    // Clear intervals and timeouts
-                    if (paymentCheckInterval) {
-                        clearInterval(paymentCheckInterval);
-                        setPaymentCheckInterval(null);
-                    }
-                    if (paymentTimeoutId) {
-                        clearTimeout(paymentTimeoutId);
-                        setPaymentTimeoutId(null);
-                    }
+                    // Close payment modal if still open
+                    setIsPaymentModalOpen(false);
                 }}>
                     {t('tryAgainButton') || 'Try Again'}
                 </Button>
@@ -517,16 +482,27 @@ const RequestFormPage = ({ navigateTo }) => {
                                 animate={{ opacity: 1 }}
                                 className="bg-blue-50 border border-blue-200 rounded-md p-4"
                             >
-                                <div className="flex items-center">
-                                    <Loader2 className={cn("h-5 w-5 animate-spin text-blue-600", language === 'ar' ? 'ml-3' : 'mr-3')} />
-                                    <span className="text-blue-700">
-                                        {(() => {
-                                            const isMobile = isMobileDevice();
-                                            return isMobile 
-                                                ? (t('paymentInProgressMobileMessage') || 'Redirecting to payment gateway...')
-                                                : (t('paymentInProgressMessage') || 'Payment in progress. Please complete the payment in the popup window...');
-                                        })()}
-                                    </span>
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center">
+                                        <Loader2 className={cn("h-5 w-5 animate-spin text-blue-600", language === 'ar' ? 'ml-3' : 'mr-3')} />
+                                        <span className="text-blue-700">
+                                            {t('paymentInProgressMessage') || 'Opening payment gateway...'}
+                                        </span>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            console.log('Manual payment check triggered');
+                                            const pendingData = localStorage.getItem('pendingRequestData');
+                                            console.log('Pending data:', pendingData);
+                                            if (pendingData) {
+                                                handlePaymentModalClose();
+                                            }
+                                        }}
+                                        className="text-sm text-blue-600 hover:text-blue-800 underline"
+                                    >
+                                        Cancel
+                                    </button>
                                 </div>
                             </motion.div>
                         )}
@@ -537,6 +513,13 @@ const RequestFormPage = ({ navigateTo }) => {
                 </CardContent>
             </Card>
             <AnimatePresence>{isAgreementModalOpen && <AgreementModal isOpen={isAgreementModalOpen} onClose={() => setIsAgreementModalOpen(false)} />}</AnimatePresence>
+            <PaymentModal 
+                isOpen={isPaymentModalOpen}
+                onClose={handlePaymentModalClose}
+                paymentHtml={paymentHtml}
+                onPaymentComplete={handlePaymentComplete}
+                onPaymentError={handlePaymentError}
+            />
         </motion.div>
     );
 };
