@@ -55,7 +55,7 @@ const api = {
     // Updated function to initiate payment and receive HTML for the popup
     initiatePayFortPayment: async ({ email, amount }) => {
         // The callback URL for the popup to redirect to after payment
-        const returnUrl = `${window.location.origin}/payment-callback`;
+        // const returnUrl = `${window.location.origin}/payment-callback`;
 
         const response = await fetch(`${baseUrl}/api/payment/initiate`, {
             method: 'POST',
@@ -63,7 +63,7 @@ const api = {
                 'Content-Type': 'application/json',
             },
             // The backend needs to handle 'return_url' to configure PayFort correctly
-            body: JSON.stringify({ email, amount, return_url: returnUrl }),
+            body: JSON.stringify({ email, amount, return_url: baseUrl }),
         });
 
         if (!response.ok) {
